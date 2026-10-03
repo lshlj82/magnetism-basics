@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moving Charges and Magnetic Fields</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F8FB; --grid:#E1E8F0; --ink:#1A2433; --muted:#5B6779; --panel:#FFFFFF; --line:#C8D2DE;
+  --cyan:#5DEBEE; --magenta:#E55ADC; --red:#DE3127; --blue:#2B46D4; --green:#18924A;
+  --copper:#C9773F;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#132039; --grid:#1B2B48; --ink:#E7EDF6; --muted:#9DAAC0; --panel:#192946; --line:#2D4064;
+    --cyan:#47DDE1; --magenta:#F07AE8; --red:#FF5B4F; --blue:#93A6FF; --green:#4FD27F; --copper:#E39461;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#132039; --grid:#1B2B48; --ink:#E7EDF6; --muted:#9DAAC0; --panel:#192946; --line:#2D4064;
+  --cyan:#47DDE1; --magenta:#F07AE8; --red:#FF5B4F; --blue:#93A6FF; --green:#4FD27F; --copper:#E39461;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+body{
+  margin:0; color:var(--ink); background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:17px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+i,.m{font-style:italic}
+sub{font-size:.7em}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--magenta);outline-offset:2px;border-radius:3px}
+
+/* nav */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1080px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:18px}
+.toc{display:flex;gap:4px;overflow-x:auto;flex:1;scrollbar-width:none}
+.toc::-webkit-scrollbar{display:none}
+.toc a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:14px;padding:4px 9px;border-radius:6px}
+.toc a:hover{color:var(--ink);background:var(--grid)}
+.toc a span{color:var(--blue);font-weight:700;margin-right:4px}
+.langlink{flex:none;font-size:14px;padding:4px 12px;border:1.5px solid var(--ink);border-radius:8px;color:var(--ink);text-decoration:none}
+.langlink:hover{background:var(--ink);color:var(--paper)}
+
+/* hero */
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.hero{padding:56px 0 28px}
+.credit{font-size:15px;color:var(--muted);margin:0 0 18px;max-width:60ch}
+.credit b{color:var(--ink);font-weight:500}
+h1{font-size:clamp(40px,7vw,78px);line-height:1.04;letter-spacing:-.02em;margin:0;font-weight:700;max-width:14ch}
+.hero p.sub{font-size:19px;max-width:56ch;margin:18px 0 0}
+.hero-wire{width:100%;height:auto;display:block;margin-top:34px}
+.scrawl{color:var(--blue);font-size:15px;font-weight:500;line-height:1.5;border-left:3px solid currentColor;padding:2px 0 2px 12px;max-width:52ch}
+
+/* sections */
+section{padding:56px 0 24px;border-top:1px dashed var(--line)}
+h2{font-size:clamp(26px,3.6vw,36px);line-height:1.15;margin:0 0 14px;letter-spacing:-.01em;display:flex;gap:14px;align-items:baseline}
+h2 .n{font-size:.62em;color:var(--blue);border:2px solid var(--blue);border-radius:50%;width:1.7em;height:1.7em;display:inline-grid;place-items:center;flex:none;transform:translateY(-.15em)}
+.prose{max-width:68ch}
+.prose p{margin:0 0 12px}
+.key{display:inline-flex;flex-wrap:wrap;gap:10px 34px;align-items:center;border:6px solid var(--cyan);border-radius:5px;padding:12px 22px;margin:8px 0 22px;font-size:19px;background:var(--panel)}
+.key span{white-space:nowrap}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.9em;line-height:1.15;margin:0 2px}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 3px}
+
+.sim{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(250px,1fr);gap:18px;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:18px}
+@media (max-width:820px){.sim{grid-template-columns:1fr}}
+.viz{min-width:0;display:flex;flex-direction:column;gap:12px}
+.viz svg,.viz canvas{width:100%;display:block}
+.controls{display:flex;flex-direction:column;gap:12px;min-width:0}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-size:15px}
+.ctl output{font-variant-numeric:tabular-nums;font-weight:500}
+input[type=range]{width:100%;accent-color:var(--blue);margin:4px 0 0}
+select{font:inherit;font-size:15px;width:100%;padding:6px 8px;border-radius:7px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button,.btn{font:inherit;font-size:14px;padding:5px 11px;border-radius:7px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--blue);background:var(--blue);color:var(--panel)}
+.check{display:flex;gap:8px;align-items:center;font-size:15px;cursor:pointer}
+.check input{accent-color:var(--blue);width:17px;height:17px}
+.lbl{font-size:15px;margin-bottom:4px;display:block}
+dl.read{display:grid;grid-template-columns:1fr auto;gap:5px 12px;margin:4px 0 0;font-size:15px;border-top:1px solid var(--line);padding-top:10px}
+dl.read dt{color:var(--muted)}
+dl.read dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
+.verdict{font-size:15px;padding:8px 12px;border-radius:8px;border-left:5px solid var(--magenta);background:color-mix(in srgb,var(--magenta) 10%,transparent)}
+.aside{margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:820px){.aside{grid-template-columns:1fr}}
+.boxed{border:1.5px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--panel);font-size:16px}
+.boxed h3{margin:0 0 6px;font-size:17px}
+
+.mag{color:var(--magenta)}
+.bars{display:flex;flex-direction:column;gap:7px;font-size:14px}
+.bar-row{display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:8px;align-items:center}
+.bar-track{height:14px;background:var(--grid);border-radius:4px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:4px;transition:width .15s}
+.bar-row .v{text-align:right;font-variant-numeric:tabular-nums}
+.bar-cap{grid-column:1/-1;color:var(--muted);margin-bottom:-4px}
+table.tbl{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl th{color:var(--muted);font-weight:500}
+.eq{font-size:16px;line-height:1.7}
+.eq .sum{font-weight:700}
+.small{font-size:14px;color:var(--muted)}
+footer{padding:40px 0 60px;border-top:1px dashed var(--line);margin-top:40px;color:var(--muted);font-size:15px}
+svg text{font-family:"IBM Plex Sans KR",system-ui,sans-serif;fill:var(--ink)}
+svg .wire{stroke:var(--ink);stroke-width:2.2;fill:none;stroke-linejoin:round}
+svg .flow{stroke:var(--red);stroke-width:5;fill:none;stroke-linecap:round;stroke-dasharray:0.1 15}
+svg .axis{stroke:var(--muted);stroke-width:1.2}
+svg .gridl{stroke:var(--grid);stroke-width:1}
+@media (prefers-reduced-motion:reduce){.bar-fill{transition:none}}
+
+.hero-curve{width:100%;height:auto;display:block;margin-top:30px}
+.hero-curve .q{stroke:var(--blue);stroke-width:3.5;fill:none;stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 2.6s cubic-bezier(.3,.6,.4,1) .3s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.hero-curve .q{animation:none;stroke-dashoffset:0}}
+.stack{display:flex;height:16px;border-radius:4px;overflow:hidden;background:var(--grid)}
+.stack div{height:100%;transition:width .08s linear}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:14px;color:var(--muted)}
+.legend i.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;font-style:normal}
+.pill{font-size:14px;padding:6px 10px;border-radius:8px;background:color-mix(in srgb,var(--blue) 10%,transparent);border-left:4px solid var(--blue)}
+.sim.one{grid-template-columns:minmax(0,1fr) minmax(250px,.8fr)}
+@media (max-width:820px){.sim.one{grid-template-columns:1fr}}
+
+.hero-orbit{width:100%;height:auto;display:block;margin-top:28px}
+.toc a{padding:4px 7px}
+svg.drag{touch-action:none;cursor:grab}
+.rows{display:flex;flex-direction:column;gap:4px;font-size:15px}
+</style>
+</head>
+<body>
+
+<nav class="bar" aria-label="Sections">
+  <div class="bar-in">
+    <div class="toc" id="toc"></div>
+    <a class="langlink" href="magnetism-ko.html" hreflang="ko" lang="ko">한국어</a>
+  </div>
+</nav>
+
+<header class="wrap hero">
+  <p class="credit" data-i18n="credit"></p>
+  <h1 data-i18n="title"></h1>
+  <p class="sub" data-i18n="subtitle"></p>
+  <svg class="hero-orbit" id="hero" viewBox="0 0 1000 170" aria-hidden="true"></svg>
+</header>
+
+<main class="wrap">
+
+<section id="s1">
+  <h2><span class="n">1</span><span data-i18n="h1"></span></h2>
+  <div class="prose"><p data-i18n="p1"></p></div>
+  <div class="key">
+    <span><b>F</b><sub>B</sub> = <i>q</i><b>v</b> × <b>B</b></span>
+    <span><i>F</i><sub>B</sub> = |<i>q</i>|<i>vB</i> sin <i>φ</i></span>
+    <span>1 T = 1 <span class="frac"><span>N</span><span>A·m</span></span> = 10<sup>4</sup> G</span>
+  </div>
+  <div class="sim">
+    <div class="viz">
+      <svg id="v1" viewBox="0 0 440 230" role="img" aria-label="Velocity, magnetic field, and the resulting force"></svg>
+      <div class="eq" id="cross1"></div>
+    </div>
+    <div class="controls" id="c1"></div>
+  </div>
+  <div class="aside">
+    <div class="boxed"><h3 data-i18n="unitH"></h3><div data-i18n="unitP"></div></div>
+    <div class="scrawl mag" data-i18n="n1"></div>
+  </div>
+</section>
+
+<section id="s2">
+  <h2><span class="n">2</span><span data-i18n="h2"></span></h2>
+  <div class="prose"><p data-i18n="p2"></p></div>
+  <div class="key">
+    <span><b>F</b><sub>E</sub> = <i>q</i><b>E</b></span>
+    <span><b>F</b><sub>B</sub> = <i>q</i><b>v</b> × <b>B</b></span>
+    <span><i>qE</i> = <i>qvB</i> &nbsp;⇒&nbsp; <i>v</i> = <span class="frac"><span><i>E</i></span><span><i>B</i></span></span></span>
+  </div>
+  <div class="sim">
+    <div class="viz">
+      <svg id="v2" viewBox="0 0 440 270" role="img" aria-label="Charged particle between plates in crossed electric and magnetic fields"></svg>
+      <div class="small" data-i18n="arb"></div>
+    </div>
+    <div class="controls" id="c2"></div>
+  </div>
+</section>
+
+<section id="s3">
+  <h2><span class="n">3</span><span data-i18n="h3"></span></h2>
+  <div class="prose"><p data-i18n="p3"></p></div>
+  <div class="key">
+    <span><i>V</i> = <i>Ed</i></span>
+    <span><i>v</i><sub>d</sub> = <span class="frac"><span><i>E</i></span><span><i>B</i></span></span> = <span class="frac"><span><i>i</i></span><span><i>neA</i></span></span></span>
+    <span><i>n</i> = <span class="frac"><span><i>Bi</i></span><span><i>Vle</i></span></span></span>
+  </div>
+  <div class="sim">
+    <div class="viz">
+      <svg id="v3" viewBox="0 0 440 300" role="img" aria-label="Hall effect in a conducting strip"></svg>
+      <div class="scrawl" data-i18n="n3"></div>
+    </div>
+    <div class="controls" id="c3"></div>
+  </div>
+</section>
+
+<section id="s4">
+  <h2><span class="n">4</span><span data-i18n="h4"></span></h2>
+  <div class="prose"><p data-i18n="p4"></p></div>
+  <div class="key">
+    <span>|<i>q</i>|<i>vB</i> = <span class="frac"><span><i>mv</i><sup>2</sup></span><span><i>r</i></span></span></span>
+    <span><i>r</i> = <span class="frac"><span><i>mv</i></span><span>|<i>q</i>|<i>B</i></span></span></span>
+    <span><i>T</i> = <span class="frac"><span>2π<i>m</i></span><span>|<i>q</i>|<i>B</i></span></span></span>
+    <span><i>f</i> = <span class="frac"><span>|<i>q</i>|<i>B</i></span><span>2π<i>m</i></span></span>, &nbsp;<i>ω</i> = <span class="frac"><span>|<i>q</i>|<i>B</i></span><span><i>m</i></span></span></span>
+  </div>
+  <div class="sim">
+    <div class="viz">
+      <svg id="v4" viewBox="0 0 440 300" role="img" aria-label="Two particles circling in a magnetic field"></svg>
+      <div class="small" data-i18n="helixCap"></div>
+      <svg id="v4h" viewBox="0 0 440 150" role="img" aria-label="Helical path"></svg>
+    </div>
+    <div class="controls" id="c4"></div>
+  </div>
+  <div class="aside">
+    <div class="scrawl" data-i18n="n4"></div>
+    <div class="scrawl mag" data-i18n="n4b"></div>
+  </div>
+</section>
+
+<section id="s5">
+  <h2><span class="n">5</span><span data-i18n="h5"></span></h2>
+  <div class="prose"><p data-i18n="p5"></p></div>
+  <div class="key">
+    <span><i>F</i><sub>B</sub> = <i>iLB</i> sin <i>φ</i></span>
+    <span><b>F</b><sub>B</sub> = <i>i</i><b>L</b> × <b>B</b></span>
+    <span>d<b>F</b><sub>B</sub> = <i>i</i> d<b>L</b> × <b>B</b></span>
+  </div>
+  <div class="sim">
+    <div class="viz">
+      <svg id="v5" viewBox="0 0 440 300" role="img" aria-label="A wire bending in a magnetic field"></svg>
+      <div class="rows" id="why5"></div>
+    </div>
+    <div class="controls" id="c5"></div>
+  </div>
+</section>
+
+<section id="s6">
+  <h2><span class="n">6</span><span data-i18n="h6"></span></h2>
+  <div class="prose"><p data-i18n="p6"></p></div>
+  <div class="key">
+    <span><i>F</i><sub>1</sub> = <i>F</i><sub>3</sub> = <i>iaB</i></span>
+    <span><i>τ</i> = <i>iabB</i> sin <i>θ</i></span>
+    <span><i>τ</i> = (<i>NiA</i>)<i>B</i> sin <i>θ</i></span>
+  </div>
+  <div class="sim">
+    <div class="viz">
+      <svg id="v6" viewBox="0 0 440 300" role="img" aria-label="Current loop seen edge-on in a magnetic field"></svg>
+      <svg id="v6p" viewBox="0 0 440 150" role="img" aria-label="Torque versus angle"></svg>
+    </div>
+    <div class="controls" id="c6"></div>
+  </div>
+</section>
+
+<section id="s7">
+  <h2><span class="n">7</span><span data-i18n="h7"></span></h2>
+  <div class="prose"><p data-i18n="p7"></p></div>
+  <div class="key">
+    <span>d<b>B</b> = <span class="frac"><span><i>μ</i><sub>0</sub></span><span>4π</span></span><span class="frac"><span><i>i</i> d<b>s</b> × <b>r̂</b></span><span><i>r</i><sup>2</sup></span></span></span>
+    <span><i>μ</i><sub>0</sub> = 4π × 10<sup>−7</sup> T·m/A</span>
+  </div>
+  <div class="sim">
+    <div class="viz">
+      <svg id="v7" viewBox="0 0 440 300" role="img" aria-label="Field of a current"></svg>
+      <svg id="v7p" viewBox="0 0 440 170" role="img" aria-label="Field magnitude graph"></svg>
+    </div>
+    <div class="controls" id="c7"></div>
+  </div>
+</section>
+
+<section id="s8">
+  <h2><span class="n">8</span><span data-i18n="h8"></span></h2>
+  <div class="prose"><p data-i18n="p8"></p></div>
+  <div class="key">
+    <span><i>B</i><sub>a</sub> = <span class="frac"><span><i>μ</i><sub>0</sub><i>i</i><sub>a</sub></span><span>2π<i>d</i></span></span></span>
+    <span><i>F</i><sub>ba</sub> = <i>i</i><sub>b</sub><i>LB</i><sub>a</sub> = <span class="frac"><span><i>μ</i><sub>0</sub><i>Li</i><sub>a</sub><i>i</i><sub>b</sub></span><span>2π<i>d</i></span></span></span>
+  </div>
+  <div class="sim">
+    <div class="viz"><svg id="v8" viewBox="0 0 440 280" role="img" aria-label="Two parallel currents"></svg></div>
+    <div class="controls" id="c8"></div>
+  </div>
+</section>
+
+<section id="s9">
+  <h2><span class="n">9</span><span data-i18n="h9"></span></h2>
+  <div class="prose"><p data-i18n="p9"></p></div>
+  <div class="key">
+    <span>∮ <b>B</b> · d<b>s</b> = <i>μ</i><sub>0</sub><i>i</i><sub>enc</sub></span>
+    <span><span data-i18n="outside"></span>: <i>B</i> = <span class="frac"><span><i>μ</i><sub>0</sub><i>i</i></span><span>2π<i>r</i></span></span></span>
+    <span><span data-i18n="inside"></span>: <i>B</i> = <span class="frac"><span><i>μ</i><sub>0</sub><i>i</i></span><span>2π<i>R</i><sup>2</sup></span></span><i>r</i></span>
+  </div>
+  <div class="sim">
+    <div class="viz">
+      <svg id="v9" class="drag" viewBox="0 0 440 300" role="img" aria-label="Ampere loop around three currents"></svg>
+      <div class="small" data-i18n="dragHint"></div>
+    </div>
+    <div class="controls" id="c9"></div>
+  </div>
+  <div class="aside">
+    <div class="boxed"><h3 data-i18n="thickH"></h3><svg id="v9b" viewBox="0 0 400 170" role="img" aria-label="Field inside and outside a thick wire"></svg></div>
+    <div class="scrawl" data-i18n="n9"></div>
+  </div>
+</section>
+
+<section id="s10">
+  <h2><span class="n">10</span><span data-i18n="h10"></span></h2>
+  <div class="prose"><p data-i18n="p10"></p></div>
+  <div class="key">
+    <span>∮ <b>B</b> · d<b>s</b> = <i>Bh</i> = <i>μ</i><sub>0</sub><i>i</i>(<i>nh</i>)</span>
+    <span><i>B</i> = <i>μ</i><sub>0</sub><i>in</i></span>
+  </div>
+  <div class="sim">
+    <div class="viz"><svg id="v10" viewBox="0 0 440 260" role="img" aria-label="Cross-section of a solenoid"></svg></div>
+    <div class="controls" id="c10"></div>
+  </div>
+</section>
+</main>
+
+<footer class="wrap"><p data-i18n="credit"></p></footer>
+
+<script>
+const I18N={
+en:{
+ nav:["Force on a charge","Crossed fields","Hall effect","Circular motion","Force on a wire","Torque on a loop","Biot–Savart","Parallel currents","Ampère's law","Solenoid"],
+ credit:"Created by <b>Claude Opus 5.5</b>, based on the lecture notes by <b>Sang Hoon Lee (이상훈)</b>.",
+ title:"Moving charges and magnetic fields",
+ subtitle:"An interactive tour of the basic ideas of magnetism: the force a magnetic field exerts on moving charges and currents, and the fields that currents create. Move any control and every number on the page is recomputed on the spot.",
+ h1:"The magnetic force on a moving charge",
+ p1:"A charge at rest feels no magnetic force. When a charge <i>q</i> moves with velocity <b>v</b> through a magnetic field <b>B</b>, it feels <b>F</b><sub>B</sub> = <i>q</i><b>v</b> × <b>B</b>, with magnitude |<i>q</i>|<i>vB</i> sin <i>φ</i>, where <i>φ</i> is the angle between <b>v</b> and <b>B</b>. If <b>v</b> and <b>B</b> point the same way, there is no magnetic force. To find the direction, curl the fingers of your right hand from <b>v</b> toward <b>B</b>: your thumb points along <b>v</b> × <b>B</b>. Then, if <i>q</i> &gt; 0, the force points that way, and if <i>q</i> &lt; 0, the opposite way.",
+ n1:"F is perpendicular to both v and B, so it never has a component along the velocity. It cannot change the speed, only the direction.",
+ unitH:"The unit of B",
+ unitP:"From <i>F</i> = <i>qvB</i>, the unit of <i>B</i> is N·s/(C·m) = N/((C/s)·m) = N/(A·m), called the tesla (T). Another common unit is the gauss: 1 T = 10<sup>4</sup> G. The Earth's field at the surface is on the order of 10<sup>−4</sup> T, about 1 G. It is the field a compass needle lines up with.",
+ charge:"Charge <i>q</i>",pos:"+e (proton)",neg:"−e (electron)",speed:"Speed <i>v</i>",field:"Field <i>B</i>",angle:"Angle <i>φ</i> from <b>v</b> to <b>B</b>",
+ rF:"Force <i>F</i><sub>B</sub> = |<i>q</i>|<i>vB</i> sin <i>φ</i>",rDir:"Direction of <b>F</b><sub>B</sub>",
+ outPage:"out of the page ⊙",inPage:"into the page ⊗",noForce:"none (v ∥ B)",
+ vxbIs:"<b>v</b> × <b>B</b> points",thenF:"so <b>F</b><sub>B</sub> = <i>q</i>(<b>v</b> × <b>B</b>) points",
+ h2:"Crossed fields",
+ p2:"Both an electric field <b>E</b> and a magnetic field <b>B</b> can push on a charged particle, so when both are present the net force is the vector sum. Here <b>E</b> points down, <b>B</b> points into the page, and a particle enters from the left with velocity <b>v</b>. For <i>q</i> &gt; 0 the electric force pushes it down and the magnetic force pushes it up; for <i>q</i> &lt; 0 both flip, so they still oppose each other. Tune <i>E</i> and <i>B</i> so the two forces are equal and the net force is zero: the particle keeps its direction and goes straight. Since <b>v</b> ⊥ <b>B</b>, that happens when <i>qE</i> = <i>qvB</i>, i.e. <i>v</i> = <i>E</i>/<i>B</i>.",
+ arb:"E, B, v and forces are in arbitrary units. Only the ratio v = E/B matters, and it does not depend on the particle's charge or mass.",
+ efield:"Electric field <i>E</i>",bfield:"Magnetic field <i>B</i>",setV:"Set v = E/B",fire:"Launch again",
+ rFE:"Electric force <i>qE</i>",rFB:"Magnetic force <i>qvB</i>",rEB:"Balancing speed <i>E</i>/<i>B</i>",rOut:"Result",
+ straight:"goes straight",up:"bends upward",down:"bends downward",
+ h3:"The Hall effect",
+ p3:"The conduction electrons drifting through a wire feel a magnetic force too. In this strip the current <i>i</i> flows down and <b>B</b> points into the page. Electrons drift up with drift speed <i>v</i><sub>d</sub>; by the right-hand rule <b>v</b> × <b>B</b> points left, but the electron's charge is negative, so it is pushed right. Negative charge piles up on the right and the left side ends up at a higher potential. This continues until the electric field from that charge separation cancels the magnetic force, i.e. <i>v</i><sub>d</sub> = <i>E</i>/<i>B</i>, the condition from the previous section. With <i>V</i> = <i>Ed</i> and <i>v</i><sub>d</sub> = <i>i</i>/(<i>neA</i>), measuring the Hall voltage gives the density of charge carriers.",
+ n3:"If the carriers were positive, they would move down, be pushed right, and make the right side higher. Measuring which side is higher reveals the sign of the carriers. This is how we know they are negative.",
+ carriers:"Charge carriers",realE:"Electrons (real)",hypoP:"Positive (hypothetical)",material:"Material",cu:"Copper",semiM:"Semiconductor (n = 10²³ m⁻³)",
+ curr:"Current <i>i</i>",thick:"Thickness <i>l</i>",restart:"Switch the current on again",
+ rVH:"Hall voltage <i>V</i> = <i>Bi</i>/(<i>nle</i>)",rHigh:"Higher potential",left:"left side",right:"right side",rN:"<i>n</i> = <i>Bi</i>/(<i>Vle</i>) from the measurement",building:"building up",
+ h4:"Circular motion of a charged particle",
+ p4:"Because <b>F</b><sub>B</sub> is always perpendicular to <b>v</b>, a particle moving perpendicular to a uniform field travels in a circle, with the magnetic force supplying the centripetal force: |<i>q</i>|<i>vB</i> = <i>mv</i><sup>2</sup>/<i>r</i>. The radius is <i>r</i> = <i>mv</i>/(|<i>q</i>|<i>B</i>). The period, the time for one lap, is the circumference divided by the speed, <i>T</i> = 2π<i>r</i>/<i>v</i> = 2π<i>m</i>/(|<i>q</i>|<i>B</i>). Viewed along the field direction, a positive charge circles counterclockwise and a negative charge clockwise.",
+ n4:"T, f and ω don't depend on the speed, only on |q|B/m. A fast particle draws a big circle and a slow one a small circle, but both finish a lap at the same time.",
+ n4b:"If v makes an angle φ with B, the parallel part v cos φ is untouched and the particle spirals in a helix with radius mv sin φ/(|q|B) and pitch p = v cos φ · T.",
+ particle:"Particle",proton:"Proton",electron:"Electron",alpha:"Alpha particle",v1:"Speed of particle 1, <i>v</i><sub>1</sub>",v2:"Speed of particle 2, <i>v</i><sub>2</sub>",pitch:"Angle <i>φ</i> between <b>v</b><sub>1</sub> and <b>B</b> (helix below)",
+ rR1:"Radius <i>r</i><sub>1</sub>",rR2:"Radius <i>r</i><sub>2</sub>",rT:"Period <i>T</i>",rf:"Frequency <i>f</i>",rw:"Angular frequency <i>ω</i>",rLaps:"Laps completed (both)",rP:"Helix pitch <i>p</i>",rRh:"Helix radius",
+ helixCap:"Side view: particle 1 with its velocity tilted by φ from B spirals along the field",
+ h5:"The magnetic force on a current",
+ p5:"A wire carrying current through a magnetic field is pushed sideways, because each moving charge in it feels <i>q</i><b>v</b> × <b>B</b>. If charges cross a length <i>L</i> of wire in time <i>t</i> = <i>L</i>/<i>v</i><sub>d</sub>, the charge passing is <i>q</i> = <i>iL</i>/<i>v</i><sub>d</sub>, so <i>F</i> = <i>qv</i><sub>d</sub><i>B</i> = <i>iLB</i>. In general <b>F</b><sub>B</sub> = <i>i</i><b>L</b> × <b>B</b>, where <b>L</b> points along the current. For a curved wire or a non-uniform field, split the wire into small straight pieces and add up d<b>F</b><sub>B</sub> = <i>i</i>d<b>L</b> × <b>B</b>.",
+ showCarriers:"Picture the current as",posUp:"Positive charges",negDown:"Electrons",len:"Length <i>L</i> in the field",
+ rF5:"Force <i>F</i> = <i>iLB</i>",dirR:"to the right",dirL:"to the left",
+ why5pos:"Positive charges move along the current. <b>v</b> × <b>B</b> points {d}, and <i>q</i> &gt; 0, so <b>F</b><sub>B</sub> points {d}.",
+ why5neg:"Electrons move against the current. <b>v</b> × <b>B</b> points {o}, but <i>q</i> &lt; 0, so <b>F</b><sub>B</sub> points {d}.",
+ why5zero:"No current, no force.",
+ why5end:"Either way the force is the same. For the force on a current, only the direction of the current matters, not the sign of the carriers. (Review: the Hall effect is what shows that q &lt; 0.)",
+ h6:"Torque on a current loop",
+ p6:"A rectangular loop with sides <i>a</i> and <i>b</i> sits in a uniform field, with its normal <b>n̂</b> at angle <i>θ</i> to <b>B</b>. Forces on two opposite sides are equal and opposite along the same line, so they cancel. The other two sides each feel <i>F</i> = <i>iaB</i>, equal and opposite but acting at different points, so they produce a torque <i>τ</i> = <i>iaB</i>(<i>b</i>/2) sin <i>θ</i> × 2 = <i>iabB</i> sin <i>θ</i>. For a coil of <i>N</i> turns and area <i>A</i>, <i>τ</i> = (<i>NiA</i>)<i>B</i> sin <i>θ</i>. This is the basic principle of an electric motor.",
+ mode6:"Mode",free:"Free loop",motor:"Motor (current flips every half turn)",push:"Give it a push",turns:"Turns <i>N</i>",areaA:"Area <i>A</i>",
+ rTh:"Angle <i>θ</i> between <b>n̂</b> and <b>B</b>",rTau:"Torque <i>τ</i> = <i>NiAB</i> sin <i>θ</i>",rMax:"Largest torque <i>NiAB</i>",tauPlot:"τ as a function of θ",
+ h7:"The field a current makes: Biot–Savart law",
+ p7:"Moving charges create a magnetic field around them. A small current element <i>i</i>d<b>s</b> produces at point P, a distance <i>r</i> away, a field of size d<i>B</i> = (<i>μ</i><sub>0</sub>/4π)<i>i</i> d<i>s</i> sin <i>θ</i>/<i>r</i><sup>2</sup>, pointing along d<b>s</b> × <b>r̂</b>. Adding up all the elements gives the field. For a long straight wire, <i>B</i> = <i>μ</i><sub>0</sub><i>i</i>/(2π<i>R</i>), and the field circles the wire: point your right thumb along the current and your fingers curl along <b>B</b>.",
+ shape:"Current shape",wire:"Long straight wire",arc:"Circular arc",loopAxis:"On the axis of a loop",semi:"Wire extends to infinity on one side only",
+ dist:"Distance <i>R</i>",radius:"Radius <i>R</i>",arcAng:"Arc angle <i>φ</i>",zpos:"Height <i>z</i> above the loop",
+ rB7:"Field <i>B</i>",rNum:"Numerical sum of d<i>B</i> (2000 pieces)",rForm:"Formula",
+ gWire:"B versus distance R (∝ 1/R)",gArc:"B at the center versus arc angle (linear in φ)",gAxis:"B along the axis versus z",
+ axisNote:"Far from the loop, the field falls like 1/z³, the same pattern as the electric field of a dipole.",
+ h8:"Force between two parallel currents",
+ p8:"A current feels a force in a magnetic field, and a current also makes a magnetic field, so two currents push or pull on each other. (A wire is not pushed by its own field.) Wire a makes the field <i>B</i><sub>a</sub> = <i>μ</i><sub>0</sub><i>i</i><sub>a</sub>/(2π<i>d</i>) at wire b, and a length <i>L</i> of wire b feels <i>F</i><sub>ba</sub> = <i>i</i><sub>b</sub><i>LB</i><sub>a</sub>. If the currents point the same way, the wires attract; if they point opposite ways, they repel.",
+ ia:"Current <i>i</i><sub>a</sub>",ib:"Current <i>i</i><sub>b</sub>",sep:"Separation <i>d</i>",
+ rBa:"<i>B</i><sub>a</sub> at wire b",rF8:"Force per metre, <i>F</i><sub>ba</sub>/<i>L</i>",rKind:"Result",attract:"attract",repel:"repel",nothing:"no force",
+ h9:"Ampère's law",
+ p9:"Instead of the often hard Biot–Savart integral, Ampère's law uses symmetry to find the field easily, much as Gauss's law replaces Coulomb's law. Integrate <b>B</b> · d<b>s</b> around a closed loop (an Ampère loop) and you get <i>μ</i><sub>0</sub> times the net current through the loop, <i>i</i><sub>enc</sub>. For the sign, curl your right fingers along d<b>s</b>: currents along your thumb count as positive. For a long straight wire, a circle of radius <i>r</i> around it gives <i>B</i>(2π<i>r</i>) = <i>μ</i><sub>0</sub><i>i</i>, the same result as Biot–Savart.",
+ dragHint:"Drag inside the picture to move the Ampère loop. The loop is traversed counterclockwise, so currents out of the page (⊙) count as positive.",
+ outside:"outside",inside:"inside a wire of radius R",
+ loopR:"Loop radius",i1:"Current <i>i</i><sub>1</sub>",i2:"Current <i>i</i><sub>2</sub>",i3:"Current <i>i</i><sub>3</sub>",
+ rInt:"∮ <b>B</b> · d<b>s</b> (numerical, 360 pieces)",rEnc:"<i>i</i><sub>enc</sub>",rMu:"<i>μ</i><sub>0</sub><i>i</i><sub>enc</sub>",
+ n9:"Currents outside the loop still bend the field along it, but their contributions to ∮B·ds add up to zero. Blue segments of the loop have B·ds > 0, red ones B·ds < 0.",
+ thickH:"Inside a thick wire",
+ thickP:"",
+ h10:"The solenoid",
+ p10:"A solenoid is a tightly wound coil of wire. In an ideal, very long solenoid the field inside is uniform and the field outside is zero. Take a rectangular Ampère loop abcd of length <i>h</i>: only the inside side ab contributes, because <b>B</b> is perpendicular to d<b>s</b> on the short sides and <b>B</b> = 0 outside. The loop encloses <i>nh</i> turns, where <i>n</i> is the number of turns per unit length, so <i>Bh</i> = <i>μ</i><sub>0</sub><i>i</i>(<i>nh</i>) and <i>B</i> = <i>μ</i><sub>0</sub><i>in</i>.",
+ turnsN:"Turns per unit length <i>n</i>",loopH:"Length <i>h</i> of the Ampère loop",
+ rB10:"Field inside <i>B</i> = <i>μ</i><sub>0</sub><i>in</i>",rTurns:"Turns enclosed <i>nh</i>",rBh:"<i>Bh</i> = <i>μ</i><sub>0</sub><i>i</i>(<i>nh</i>)",
+ inTxt:"in",outTxt:"out",zero:"B = 0 outside",into:"into",outof:"out of",perM:"/m"
+}
+};
+
+const lang="en";const L=I18N[lang];const t=k=>(L[k]??k);
+const $=s=>document.querySelector(s);const NS="http://www.w3.org/2000/svg";
+function E(tag,attrs={},parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function H(tag,attrs={},parent,html){const e=document.createElement(tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(html!=null)e.innerHTML=html;if(parent)parent.appendChild(e);return e}
+const reduceMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const MU0=4*Math.PI*1e-7,EC=1.602e-19;
+const minus=s=>String(s).replace(/-/g,"−");
+function trimP(x,sig){let s=x.toPrecision(sig);if(s.includes("e"))s=String(+s);return s}
+function si(x,unit,sig=3){if(!isFinite(x))return"∞ "+unit;if(Math.abs(x)<1e-30)return"0 "+unit;
+  const P=[[1e9,"G"],[1e6,"M"],[1e3,"k"],[1,""],[1e-3,"m"],[1e-6,"μ"],[1e-9,"n"],[1e-12,"p"],[1e-15,"f"]];const a=Math.abs(x);
+  for(const[f,p]of P){if(a>=f*0.99995)return minus(trimP(x/f,sig))+" "+p+unit}return minus(sci(x))+" "+unit}
+const SUPS={"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+function sci(x,sig=3){if(!isFinite(x))return"∞";if(x===0)return"0";const a=Math.abs(x);if(a>=1e-2&&a<1e4)return minus(trimP(x,sig));
+  let e=Math.floor(Math.log10(a));let m=+(x/10**e).toPrecision(sig);if(Math.abs(m)>=10){m=+(m/10).toPrecision(sig);e++}
+  return minus(String(m))+"×10"+String(e).split("").map(c=>SUPS[c]).join("")}
+const fx=(x,d=2)=>minus((Math.abs(x)<0.5*10**-d?0:x).toFixed(d));
+const S={};
+function slider(box,{id,key,min,max,step,value,fmt,on}){const d=H("div",{class:"ctl"},box);const l=H("label",{for:id},d);H("span",{"data-i18n":key},l);const o=H("output",{},l);
+  const inp=H("input",{type:"range",id,min,max,step,value},d);const upd=()=>{S[id]=+inp.value;o.textContent=fmt(S[id])};inp.addEventListener("input",()=>{upd();on()});upd();return inp}
+function seg(box,{id,key,options,value,on}){const d=H("div",{class:"ctl"},box);H("span",{class:"lbl","data-i18n":key},d);const g=H("div",{class:"seg",role:"group"},d);S[id]=value;
+  options.forEach(([v,k])=>{const b=H("button",{type:"button","data-i18n":k,"aria-pressed":String(v===value)},g);b.addEventListener("click",()=>{S[id]=v;g.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));on()})})}
+function check(box,{id,key,value,on}){const lab=H("label",{class:"check"},box);const cb=H("input",{type:"checkbox",id},lab);cb.checked=value;S[id]=value;H("span",{"data-i18n":key},lab);cb.addEventListener("change",()=>{S[id]=cb.checked;on()})}
+function button(box,key,fn){const b=H("button",{type:"button",class:"btn","data-i18n":key},box);b.addEventListener("click",fn);return b}
+function readout(box,rows){const dl=H("dl",{class:"read"},box);const out={};rows.forEach(([id,key])=>{H("dt",{"data-i18n":key},dl);out[id]=H("dd",{},dl)});return out}
+function txt(g,x,y,s,a={}){const e=E("text",Object.assign({x,y,"font-size":14},a),g);s=String(s);
+  if(!s.includes("_")){e.textContent=s;return e}const parts=s.split(/_([A-Za-z0-9]+)/);let shifted=false;
+  parts.forEach((p,k)=>{if(!p)return;const sub=k%2===1;const ts=E("tspan",{},e);if(sub){ts.setAttribute("dy","4");ts.setAttribute("font-size","0.72em");shifted=true}else if(shifted){ts.setAttribute("dy","-4");shifted=false}ts.textContent=p});return e}
+function arrow(g,x1,y1,x2,y2,col,w=2.5,hd=9){const dx=x2-x1,dy=y2-y1,Ln=Math.hypot(dx,dy);if(Ln<2)return;const ux=dx/Ln,uy=dy/Ln;const h=Math.min(hd,Ln*0.6);const bx=x2-ux*h,by=y2-uy*h;
+  E("line",{x1,y1,x2:bx,y2:by,stroke:col,"stroke-width":w,"stroke-linecap":"round"},g);E("polygon",{points:`${x2},${y2} ${bx-uy*h*.55},${by+ux*h*.55} ${bx+uy*h*.55},${by-ux*h*.55}`,fill:col},g)}
+function dotOut(g,x,y,r,col){E("circle",{cx:x,cy:y,r,fill:"var(--panel)",stroke:col,"stroke-width":2},g);E("circle",{cx:x,cy:y,r:Math.max(1.6,r*.28),fill:col},g)}
+function crossIn(g,x,y,r,col){E("circle",{cx:x,cy:y,r,fill:"var(--panel)",stroke:col,"stroke-width":2},g);const s=r*.6;E("path",{d:`M${x-s},${y-s}L${x+s},${y+s}M${x-s},${y+s}L${x+s},${y-s}`,stroke:col,"stroke-width":2},g)}
+function xMark(g,x,y,s,col,op=1){E("path",{d:`M${x-s},${y-s}L${x+s},${y+s}M${x-s},${y+s}L${x+s},${y-s}`,stroke:col,"stroke-width":1.8,opacity:op},g)}
+function dMark(g,x,y,r,col,op=1){E("circle",{cx:x,cy:y,r,fill:col,opacity:op},g)}
+function graph(g,{l=60,r=420,t0=24,b=130,xmin,xmax,ymin,ymax,xt,yt,xl,yl}){const X=v=>l+(v-xmin)/(xmax-xmin)*(r-l),Y=v=>b-(v-ymin)/(ymax-ymin)*(b-t0);
+  xt.forEach(([v,s])=>{E("line",{x1:X(v),x2:X(v),y1:t0,y2:b,class:"gridl"},g);txt(g,X(v),b+15,s,{"text-anchor":"middle","font-size":11,fill:"var(--muted)"})});
+  yt.forEach(([v,s])=>{E("line",{x1:l,x2:r,y1:Y(v),y2:Y(v),class:"gridl"},g);txt(g,l-6,Y(v)+4,s,{"text-anchor":"end","font-size":11,fill:"var(--muted)"})});
+  E("line",{x1:l,x2:r,y1:Y(Math.max(ymin,Math.min(ymax,0))),y2:Y(Math.max(ymin,Math.min(ymax,0))),class:"axis"},g);E("line",{x1:l,x2:l,y1:t0,y2:b,class:"axis"},g);
+  if(xl)txt(g,(l+r)/2,b+30,xl,{"text-anchor":"middle","font-size":12,fill:"var(--muted)"});if(yl)txt(g,l,t0-9,yl,{"font-size":12,fill:"var(--muted)"});return{X,Y}}
+const deg=x=>x*Math.PI/180;
+const anims=[];
+
+/* nav */
+(function(){const toc=$("#toc");L.nav.forEach((n,k)=>{const a=H("a",{href:"#s"+(k+1)},toc);a.innerHTML=`<span>${k+1}</span>${n}`})})();
+
+/* hero: a charge circling in a field into the page */
+(function(){const g=$("#hero");for(let x=30;x<1000;x+=56)for(let y=24;y<170;y+=40)xMark(g,x,y,5,"var(--red)",.35);
+  E("circle",{cx:500,cy:88,r:62,fill:"none",stroke:"var(--blue)","stroke-width":2,"stroke-dasharray":"4 6",opacity:.6},g);
+  const pg=E("g",{},g);txt(g,980,160,"B ⊗",{"text-anchor":"end","font-size":15,fill:"var(--red)"});
+  let th=0;anims.push(dt=>{if(reduceMotion&&th)return;th+=dt*1.1;pg.innerHTML="";const x=500+62*Math.sin(th),y=88+62*Math.cos(th);
+    E("circle",{cx:x,cy:y,r:9,fill:"var(--blue)"},pg);txt(pg,x,y+5,"+",{"text-anchor":"middle",fill:"var(--panel)","font-weight":700});
+    const vx=Math.cos(th),vy=-Math.sin(th);arrow(pg,x,y,x+vx*44,y+vy*44,"var(--blue)",2.5);arrow(pg,x,y,x+(500-x)*.55,y+(88-y)*.55,"var(--magenta)",2.5)})})();
+
+/* 1. F = q v x B */
+(function(){const c=$("#c1");seg(c,{id:"q1",key:"charge",options:[[1,"pos"],[-1,"neg"]],value:1,on:u1});
+  slider(c,{id:"v1s",key:"speed",min:0.1,max:10,step:0.1,value:3,fmt:v=>v.toFixed(1)+"×10⁶ m/s",on:u1});
+  slider(c,{id:"B1",key:"field",min:0.01,max:2,step:0.01,value:0.5,fmt:v=>v.toFixed(2)+" T",on:u1});
+  slider(c,{id:"phi1",key:"angle",min:0,max:360,step:1,value:60,fmt:v=>v+"°",on:u1});
+  S.ro1=readout(c,[["F","rF"],["d","rDir"]]);})();
+function u1(){const g=$("#v1");g.innerHTML="";const cx=150,cy=125,ph=deg(S.phi1),q=S.q1;const s=Math.sin(ph);
+  const Bl=50+70*S.B1/2;E("path",{d:`M${cx+34},${cy} A34,34 0 ${S.phi1>180?1:0},0 ${cx+34*Math.cos(ph)},${cy-34*Math.sin(ph)}`,fill:"none",stroke:"var(--muted)","stroke-width":1.5},g);
+  txt(g,cx+44*Math.cos(ph/2),cy-44*Math.sin(ph/2)+4,"φ",{"text-anchor":"middle","font-style":"italic",fill:"var(--muted)"});
+  arrow(g,cx,cy,cx+40+90*S.v1s/10,cy,"var(--blue)",3.5,12);txt(g,cx+48+90*S.v1s/10,cy+5,"v",{"font-weight":700,fill:"var(--blue)","font-size":16});
+  arrow(g,cx,cy,cx+Bl*Math.cos(ph),cy-Bl*Math.sin(ph),"var(--red)",3.5,12);txt(g,cx+(Bl+14)*Math.cos(ph),cy-(Bl+14)*Math.sin(ph)+5,"B",{"font-weight":700,fill:"var(--red)","font-size":16,"text-anchor":"middle"});
+  E("circle",{cx,cy,r:11,fill:q>0?"var(--red)":"var(--blue)"},g);txt(g,cx,cy+5,q>0?"+":"−",{"text-anchor":"middle",fill:"var(--panel)","font-weight":700,"font-size":16});
+  const F=EC*S.v1s*1e6*S.B1*Math.abs(s);const fz=q*s;const R=10+26*Math.abs(s);
+  txt(g,360,40,"F_B",{"text-anchor":"middle","font-weight":700,fill:"var(--magenta)"});
+  if(Math.abs(s)<1e-3)txt(g,360,90,"0",{"text-anchor":"middle","font-size":22,fill:"var(--magenta)"});else(fz>0?dotOut:crossIn)(g,360,95,R,"var(--magenta)");
+  txt(g,360,150,"v × B",{"text-anchor":"middle",fill:"var(--muted)","font-size":12});if(Math.abs(s)>1e-3)(s>0?dotOut:crossIn)(g,360,175,10,"var(--muted)");
+  S.ro1.F.textContent=si(F,"N");S.ro1.d.textContent=Math.abs(s)<1e-3?t("noForce"):t(fz>0?"outPage":"inPage");
+  $("#cross1").innerHTML=Math.abs(s)<1e-3?`<b>v</b> × <b>B</b> = 0`:`${t("vxbIs")} ${t(s>0?"outPage":"inPage")}; ${t("thenF")} ${t(fz>0?"outPage":"inPage")}.`;}
+
+/* 2. crossed fields */
+const P2={x:-0.4,y:0,vx:0,vy:0,alive:true,trail:[],old:[],wait:0};
+(function(){const c=$("#c2");seg(c,{id:"q2",key:"charge",options:[[1,"pos"],[-1,"neg"]],value:1,on:fire2});
+  slider(c,{id:"E2",key:"efield",min:0,max:8,step:0.1,value:4,fmt:v=>v.toFixed(1),on:fire2});
+  slider(c,{id:"B2",key:"bfield",min:0.2,max:4,step:0.05,value:2,fmt:v=>v.toFixed(2),on:fire2});
+  S.vin=slider(c,{id:"vv2",key:"speed",min:0.5,max:4,step:0.05,value:2,fmt:v=>v.toFixed(2),on:fire2});
+  button(c,"setV",()=>{const v=Math.max(0.5,Math.min(4,S.E2/S.B2));S.vin.value=v;S.vin.dispatchEvent(new Event("input"))});button(c,"fire",fire2);
+  S.ro2=readout(c,[["fe","rFE"],["fb","rFB"],["eb","rEB"],["out","rOut"]]);})();
+function fire2(){if(P2.trail.length>2)P2.old.unshift(P2.trail);P2.old=P2.old.slice(0,3);Object.assign(P2,{x:-0.4,y:0,vx:S.vv2,vy:0,alive:true,trail:[],wait:0});u2txt()}
+function u2txt(){const fe=S.E2,fb=S.vv2*S.B2;S.ro2.fe.textContent=fx(fe,2);S.ro2.fb.textContent=fx(fb,2);S.ro2.eb.textContent=fx(S.E2/S.B2,2);
+  const net=S.q2*(fb-fe);S.ro2.out.textContent=t(Math.abs(fb-fe)<0.02?"straight":net>0?"up":"down")}
+const X2=x=>40+x*90,Y2=y=>135-y*85;
+function step2(dt){if(!P2.alive){P2.wait+=dt;if(P2.wait>1.6)fire2();return}const n=20,h=dt/n,k=0.5*S.q2;
+  for(let i=0;i<n;i++){let ax=0,ay=0;if(P2.x>=0&&P2.x<=4){ax=k*(-P2.vy*S.B2);ay=k*(-S.E2+P2.vx*S.B2)}P2.vx+=ax*h;P2.vy+=ay*h;P2.x+=P2.vx*h;P2.y+=P2.vy*h;
+    if(Math.abs(P2.y)>0.96&&P2.x>=0&&P2.x<=4){P2.alive=false;break}if(P2.x>4.6||P2.x<-0.6){P2.alive=false;break}}
+  const lt=P2.trail[P2.trail.length-1];if(!lt||Math.hypot(lt[0]-P2.x,lt[1]-P2.y)>0.02)P2.trail.push([P2.x,P2.y])}
+function draw2(){const g=$("#v2");g.innerHTML="";E("line",{x1:40,x2:400,y1:Y2(1)-2,y2:Y2(1)-2,stroke:"var(--ink)","stroke-width":3},g);E("line",{x1:40,x2:400,y1:Y2(-1)+2,y2:Y2(-1)+2,stroke:"var(--ink)","stroke-width":3},g);
+  const eo=Math.min(1,S.E2/6+.15);for(let x=70;x<400;x+=60)arrow(g,x,Y2(1)+6,x,Y2(-1)-6,"var(--blue)",1.8*eo+0.4,8);
+  for(let x=100;x<400;x+=60)for(let y of[0.55,0,-0.55])xMark(g,x,Y2(y),4.5,"var(--red)",Math.min(1,S.B2/3+.2));
+  txt(g,404,Y2(1)+16,"E",{fill:"var(--blue)","font-weight":700});txt(g,404,Y2(0.4),"B ⊗",{fill:"var(--red)","font-weight":700});
+  P2.old.forEach((tr,k)=>E("path",{d:tr.map((p,i)=>(i?"L":"M")+X2(p[0]).toFixed(1)+","+Y2(p[1]).toFixed(1)).join(""),fill:"none",stroke:"var(--green)","stroke-width":2,opacity:.35-.1*k},g));
+  if(P2.trail.length>1)E("path",{d:P2.trail.map((p,i)=>(i?"L":"M")+X2(p[0]).toFixed(1)+","+Y2(p[1]).toFixed(1)).join(""),fill:"none",stroke:"var(--green)","stroke-width":2.5},g);
+  const px=X2(P2.x),py=Y2(P2.y);E("circle",{cx:px,cy:py,r:8,fill:"none",stroke:"var(--green)","stroke-width":2.5},g);txt(g,px,py+4,S.q2>0?"+":"−",{"text-anchor":"middle","font-size":12,fill:"var(--green)","font-weight":700});
+  arrow(g,px,py,px+P2.vx*14,py-P2.vy*14,"var(--green)",2);
+  if(P2.x>=0&&P2.x<=4&&P2.alive){const fe=-S.q2*S.E2,fb=S.q2*P2.vx*S.B2;arrow(g,px-12,py,px-12,py-fe*9,"var(--blue)",2.5);arrow(g,px+12,py,px+12,py-fb*9,"var(--red)",2.5)}
+  txt(g,40,262,"F_E",{"font-size":12,fill:"var(--blue)"});txt(g,80,262,"F_B",{"font-size":12,fill:"var(--red)"});txt(g,120,262,"v",{"font-size":12,fill:"var(--green)"});}
+
+/* 3. Hall effect */
+const H3={t:0,parts:[]};const NMAT={cu:8.49e28,semi:1e23};
+(function(){const c=$("#c3");seg(c,{id:"car3",key:"carriers",options:[["e","realE"],["p","hypoP"]],value:"e",on:restart3});
+  seg(c,{id:"mat3",key:"material",options:[["cu","cu"],["semi","semiM"]],value:"cu",on:u3});
+  slider(c,{id:"i3",key:"curr",min:0.5,max:10,step:0.5,value:5,fmt:v=>v.toFixed(1)+" A",on:u3});
+  slider(c,{id:"B3",key:"field",min:0.1,max:2,step:0.1,value:1,fmt:v=>v.toFixed(1)+" T",on:u3});
+  slider(c,{id:"l3",key:"thick",min:0.05,max:1,step:0.05,value:0.1,fmt:v=>v.toFixed(2)+" mm",on:u3});
+  button(c,"restart",restart3);S.ro3=readout(c,[["V","rVH"],["hi","rHigh"],["n","rN"]]);
+  for(let k=0;k<46;k++)H3.parts.push({x:Math.random(),y:Math.random()});})();
+function restart3(){H3.t=0;H3.parts.forEach(p=>{p.x=Math.random();p.y=Math.random()});u3()}
+function u3(){const n=NMAT[S.mat3];const V=S.B3*S.i3/(n*S.l3*1e-3*EC);const hh=1-Math.exp(-H3.t/0.6);
+  S.ro3.V.textContent=si(V,"V")+(hh<0.97?" ("+t("building")+")":"");S.ro3.hi.textContent=t(S.car3==="e"?"left":"right");
+  S.ro3.n.textContent=sci(S.B3*S.i3/(V*S.l3*1e-3*EC))+" m⁻³";}
+function step3(dt){H3.t+=dt;const hh=1-Math.exp(-H3.t/0.6);const up=S.car3==="e"?-1:1;
+  H3.parts.forEach(p=>{p.y+=up*0.3*dt;if(p.y<0){p.y+=1;p.x=Math.random()}if(p.y>1){p.y-=1;p.x=Math.random()}p.x=Math.min(0.97,p.x+0.5*(1-hh)*dt)});
+  if(H3.t<6)u3();}
+function draw3(){const g=$("#v3");g.innerHTML="";const x0=140,x1=290,y0=40,y1=250,w=x1-x0;const hh=1-Math.exp(-H3.t/0.6);const isE=S.car3==="e";
+  E("rect",{x:x0,y:y0,width:w,height:y1-y0,fill:"var(--grid)",opacity:.5},g);E("line",{x1:x0,x2:x0,y1:y0-10,y2:y1+10,class:"wire"},g);E("line",{x1:x1,x2:x1,y1:y0-10,y2:y1+10,class:"wire"},g);
+  for(let y=y0+20;y<y1;y+=44)for(let x=x0+25;x<x1;x+=50)xMark(g,x,y,5,"var(--red)",.55);
+  const nq=Math.round(hh*8);for(let k=0;k<nq;k++){const y=y0+14+k*((y1-y0-28)/7);txt(g,x1-9,y+5,isE?"−":"+",{"text-anchor":"middle","font-weight":700,fill:isE?"var(--blue)":"var(--red)"});txt(g,x0+9,y+5,isE?"+":"−",{"text-anchor":"middle","font-weight":700,fill:isE?"var(--red)":"var(--blue)"})}
+  H3.parts.forEach(p=>{const x=x0+16+p.x*(w-32),y=y0+p.y*(y1-y0);E("circle",{cx:x,cy:y,r:3.5,fill:isE?"var(--blue)":"var(--red)"},g)});
+  arrow(g,215,y1+12,215,y1+40,"var(--ink)",2.5);txt(g,228,y1+34,"i",{"font-style":"italic"});
+  txt(g,x1+8,y0+4,"B ⊗",{"font-size":13,fill:"var(--red)"});txt(g,(x0+x1)/2,y0-16,"d",{"text-anchor":"middle","font-style":"italic"});arrow(g,(x0+x1)/2-8,y0-20,x0+2,y0-20,"var(--muted)",1,6);arrow(g,(x0+x1)/2+8,y0-20,x1-2,y0-20,"var(--muted)",1,6);
+  // carrier legend: velocity + force
+  const lx=40,ly=140;E("circle",{cx:lx+20,cy:ly,r:8,fill:"none",stroke:isE?"var(--blue)":"var(--red)","stroke-width":2},g);txt(g,lx+20,ly+4,isE?"−":"+",{"text-anchor":"middle","font-size":12,"font-weight":700});
+  arrow(g,lx+20,ly,lx+20,ly+(isE?-36:36),"var(--blue)",2);txt(g,lx+26,ly+(isE?-30:40),"v_d",{"font-size":12,fill:"var(--blue)"});arrow(g,lx+20,ly,lx+60,ly,"var(--green)",2.5);txt(g,lx+40,ly-6,"F_B",{"font-size":12,fill:"var(--green)"});
+  // potential profile
+  const gx0=320,gx1=420,gy0=130,gy1=200;E("line",{x1:gx0,x2:gx1,y1:gy1,y2:gy1,class:"axis"},g);E("line",{x1:gx0,x2:gx0,y1:gy0-10,y2:gy1,class:"axis"},g);
+  const vl=isE?1:0,vr=isE?0:1;E("line",{x1:gx0,x2:gx1,y1:gy1-(vl*hh*55+5),y2:gy1-(vr*hh*55+5),stroke:"var(--blue)","stroke-width":2.5},g);
+  txt(g,gx0-4,gy0-14,"V",{"font-size":12,fill:"var(--blue)"});txt(g,gx0,gy1+14,"0",{"font-size":11,fill:"var(--muted)","text-anchor":"middle"});txt(g,gx1,gy1+14,"d",{"font-size":11,fill:"var(--muted)","text-anchor":"middle"});}
+
+/* 4. circular motion */
+const PM={proton:[1.673e-27,EC],electron:[9.109e-31,-EC],alpha:[6.645e-27,2*EC]};const C4={th:0};
+(function(){const c=$("#c4");seg(c,{id:"pt4",key:"particle",options:[["proton","proton"],["electron","electron"],["alpha","alpha"]],value:"proton",on:()=>{C4.th=0;u4()}});
+  slider(c,{id:"B4",key:"field",min:0.5,max:2,step:0.05,value:0.5,fmt:v=>v.toFixed(2)+" T",on:u4});
+  slider(c,{id:"va",key:"v1",min:1,max:10,step:0.5,value:8,fmt:v=>v.toFixed(1)+"×10⁶ m/s",on:u4});
+  slider(c,{id:"vb",key:"v2",min:1,max:10,step:0.5,value:3,fmt:v=>v.toFixed(1)+"×10⁶ m/s",on:u4});
+  slider(c,{id:"ph4",key:"pitch",min:10,max:90,step:1,value:70,fmt:v=>v+"°",on:u4});
+  S.ro4=readout(c,[["r1","rR1"],["r2","rR2"],["T","rT"],["f","rf"],["w","rw"],["laps","rLaps"],["rh","rRh"],["p","rP"]]);})();
+function u4(){const[m,q]=PM[S.pt4];const B=S.B4,aq=Math.abs(q);const v1=S.va*1e6,v2=S.vb*1e6;const T=2*Math.PI*m/(aq*B);
+  const ro=S.ro4;ro.r1.textContent=si(m*v1/(aq*B),"m");ro.r2.textContent=si(m*v2/(aq*B),"m");ro.T.textContent=si(T,"s");ro.f.textContent=si(1/T,"Hz");ro.w.textContent=si(aq*B/m,"rad/s");
+  const ph=deg(S.ph4);ro.rh.textContent=si(m*v1*Math.sin(ph)/(aq*B),"m");ro.p.textContent=si(v1*Math.cos(ph)*T,"m");drawHelix()}
+function step4(dt){C4.th+=dt*3*S.B4}
+function draw4(){const g=$("#v4");g.innerHTML="";const pos=PM[S.pt4][1]>0;
+  for(let x=30;x<440;x+=44)for(let y=24;y<300;y+=44)xMark(g,x,y,4,"var(--red)",.3);txt(g,430,292,"B ⊗",{"text-anchor":"end","font-size":13,fill:"var(--red)"});
+  const sx=220,sy=pos?262:38;const rs=[S.va,S.vb].map(v=>Math.max(3,112*(v/S.B4)/20));const sc=1;const cols=["var(--blue)","var(--green)"];
+  rs.forEach((r0,i)=>{const r=r0*sc;const cy=pos?sy-r:sy+r;E("circle",{cx:sx,cy,r,fill:"none",stroke:cols[i],"stroke-width":1.5,"stroke-dasharray":"4 5",opacity:.7},g);
+    const th=C4.th;const x=sx+r*Math.sin(th),y=pos?cy+r*Math.cos(th):cy-r*Math.cos(th);
+    const vx=Math.cos(th),vy=pos?-Math.sin(th):Math.sin(th);arrow(g,x,y,x+vx*(18+r*.3),y+vy*(18+r*.3),cols[i],2.2);
+    const fx_=(sx-x),fy_=(cy-y),fl=Math.hypot(fx_,fy_)||1;arrow(g,x,y,x+fx_/fl*16,y+fy_/fl*16,"var(--magenta)",2);
+    E("circle",{cx:x,cy:y,r:7,fill:cols[i]},g);txt(g,x,y+4,pos?"+":"−",{"text-anchor":"middle","font-size":11,fill:"var(--panel)","font-weight":700})});
+  dMark(g,sx,sy,3,"var(--ink)");S.ro4.laps.textContent=Math.floor(C4.th/(2*Math.PI));}
+function drawHelix(){const g=$("#v4h");g.innerHTML="";const ph=deg(S.ph4);const R=34*Math.sin(ph)+1,pitch=34*2*Math.PI*Math.cos(ph);
+  arrow(g,20,138,420,138,"var(--red)",1.5,8);txt(g,424,142,"B",{"font-size":13,fill:"var(--red)"});
+  let back="",front="";const cy=72;const per=Math.max(pitch,6);let prev=null;
+  for(let k=0;k<=1400;k++){const th=k*0.03;const x=24+per*th/(2*Math.PI)+0.45*R*Math.sin(th);if(x>420)break;const y=cy-R*Math.cos(th);const fr=Math.sin(th)>0;const seg=`${prev?"L":"M"}${x.toFixed(1)},${y.toFixed(1)}`;
+    if(fr){front+=(prev&&prev.f)?seg:`M${x.toFixed(1)},${y.toFixed(1)}`}else{back+=(prev&&!prev.f)?seg:`M${x.toFixed(1)},${y.toFixed(1)}`}prev={f:fr}}
+  E("path",{d:back,fill:"none",stroke:"var(--blue)","stroke-width":1.5,opacity:.35},g);E("path",{d:front,fill:"none",stroke:"var(--blue)","stroke-width":2.5},g);
+  txt(g,24,18,"p = v cos φ · T",{"font-size":12,fill:"var(--muted)"});}
+
+/* 5. force on a wire */
+const W5={off:0};
+(function(){const c=$("#c5");seg(c,{id:"car5",key:"showCarriers",options:[["p","posUp"],["e","negDown"]],value:"p",on:u5});
+  slider(c,{id:"i5",key:"curr",min:-10,max:10,step:0.5,value:5,fmt:v=>minus(v.toFixed(1))+" A",on:u5});
+  slider(c,{id:"B5",key:"field",min:0,max:1,step:0.05,value:0.5,fmt:v=>v.toFixed(2)+" T",on:u5});
+  slider(c,{id:"L5",key:"len",min:0.1,max:1,step:0.05,value:0.5,fmt:v=>v.toFixed(2)+" m",on:u5});S.ro5=readout(c,[["F","rF5"]]);})();
+function u5(){const F=S.i5*S.L5*S.B5;S.ro5.F.textContent=si(Math.abs(F),"N")+(Math.abs(F)>1e-9?" ("+t(F>0?"dirR":"dirL")+")":"");
+  const d=t(F>0?"dirR":"dirL"),o=t(F>0?"dirL":"dirR");const why=$("#why5");
+  why.innerHTML=Math.abs(F)<1e-9?`<div>${t("why5zero")}</div>`:`<div>${t(S.car5==="p"?"why5pos":"why5neg").replaceAll("{d}",d).replaceAll("{o}",o)}</div><div class="small">${t("why5end")}</div>`}
+function draw5(dt){const g=$("#v5");g.innerHTML="";const F=S.i5*S.L5*S.B5;const dx=70*Math.sign(F)*Math.sqrt(Math.abs(F)/10);const op=S.B5;
+  for(let x=130;x<=310;x+=30)for(let y=100;y<=200;y+=25)dMark(g,x,y,3,"var(--red)",.25+.6*op);txt(g,330,96,"B ⊙",{"font-size":13,fill:"var(--red)"});
+  [[30,-1],[270,1]].forEach(([y,s])=>{E("line",{x1:170,x2:270,y1:y,y2:y,stroke:"var(--ink)","stroke-width":3},g);for(let x=176;x<270;x+=14)E("line",{x1:x,x2:x+8,y1:y,y2:y-s*9,stroke:"var(--ink)","stroke-width":1.4},g)});
+  const d=`M220,30 Q${220+2*dx},150 220,270`;E("path",{d,fill:"none",style:"stroke:var(--ink);stroke-width:3.5"},g);
+  const fl=E("path",{d,fill:"none",stroke:S.car5==="p"?"var(--red)":"var(--blue)","stroke-width":7,"stroke-linecap":"round","stroke-dasharray":"0.1 22"},g);
+  const sp=(S.car5==="p"?1:-1)*Math.sign(S.i5)*(Math.abs(S.i5)>0?20+4*Math.abs(S.i5):0);W5.off+=sp*dt;fl.style.strokeDashoffset=W5.off.toFixed(1);
+  if(Math.abs(S.i5)>0){const up=S.i5>0;arrow(g,190,up?200:100,190,up?100:200,"var(--blue)",2);txt(g,178,150,"i",{"font-style":"italic",fill:"var(--blue)"})}
+  if(Math.abs(F)>1e-9){const mx=220+dx;arrow(g,mx,150,mx+Math.sign(F)*(30+40*Math.abs(F)/10),150,"var(--magenta)",3.5,12);txt(g,mx+Math.sign(F)*(46+40*Math.abs(F)/10),145,"F_B",{"text-anchor":"middle","font-weight":700,fill:"var(--magenta)"})}}
+
+/* 6. torque on a loop */
+const T6={th:deg(70),w:0,s:1};
+(function(){const c=$("#c6");seg(c,{id:"m6",key:"mode6",options:[["free","free"],["motor","motor"]],value:"free",on:()=>{}});
+  button(c,"push",()=>{T6.th=deg(150);T6.w=0});
+  slider(c,{id:"N6",key:"turns",min:1,max:50,step:1,value:10,fmt:v=>v,on:()=>{}});
+  slider(c,{id:"i6",key:"curr",min:0.1,max:5,step:0.1,value:2,fmt:v=>v.toFixed(1)+" A",on:()=>{}});
+  slider(c,{id:"A6",key:"areaA",min:1,max:100,step:1,value:50,fmt:v=>v+" cm²",on:()=>{}});
+  slider(c,{id:"B6",key:"field",min:0.05,max:1,step:0.05,value:0.5,fmt:v=>v.toFixed(2)+" T",on:()=>{}});
+  S.ro6=readout(c,[["th","rTh"],["tau","rTau"],["max","rMax"]]);})();
+function step6(dt){const tm=S.N6*S.i6*S.A6*1e-4*S.B6;if(S.m6==="motor")T6.s=Math.sin(T6.th)>0?-1:1;else T6.s=1;
+  const tau=-T6.s*Math.sin(T6.th);const gain=4+10*Math.min(1,tm/0.1);const n=8,h=dt/n;for(let k=0;k<n;k++){T6.w+=(gain*tau-0.7*T6.w)*h;T6.th+=T6.w*h}
+  T6.th=((T6.th+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;}
+function draw6(){const g=$("#v6");g.innerHTML="";const tm=S.N6*S.i6*S.A6*1e-4*S.B6;const th=T6.th,s=T6.s;
+  E("rect",{x:6,y:20,width:30,height:260,fill:"var(--red)",opacity:.15},g);E("rect",{x:404,y:20,width:30,height:260,fill:"var(--blue)",opacity:.15},g);txt(g,21,155,"N",{"text-anchor":"middle","font-weight":700});txt(g,419,155,"S",{"text-anchor":"middle","font-weight":700});
+  for(let y=50;y<=250;y+=50)arrow(g,44,y,396,y,"var(--red)",1.2,8);txt(g,390,40,"B",{"font-weight":700,fill:"var(--red)"});
+  const cx=220,cy=150,hb=85;const al=th+Math.PI/2;const px=cx+hb*Math.cos(al),py=cy-hb*Math.sin(al),qx=cx-hb*Math.cos(al),qy=cy+hb*Math.sin(al);
+  E("line",{x1:px,y1:py,x2:qx,y2:qy,stroke:"var(--ink)","stroke-width":5,"stroke-linecap":"round"},g);
+  arrow(g,cx,cy,cx+60*Math.cos(th),cy-60*Math.sin(th),"var(--green)",3,10);txt(g,cx+74*Math.cos(th),cy-74*Math.sin(th)+5,"n̂",{"text-anchor":"middle","font-weight":700,fill:"var(--green)"});
+  (s>0?dotOut:crossIn)(g,px,py,9,"var(--blue)");(s>0?crossIn:dotOut)(g,qx,qy,9,"var(--blue)");
+  const fl=26+30*Math.min(1,tm/0.1);arrow(g,px,py,px,py-s*fl,"var(--magenta)",3,10);arrow(g,qx,qy,qx,qy+s*fl,"var(--magenta)",3,10);
+  const tau=-s*Math.sin(th);if(Math.abs(tau)>0.05){const r=28,a0=Math.PI*0.25,a1=Math.PI*1.25;const sw=tau>0?0:1;
+    E("path",{d:`M${cx+r*Math.cos(a0)},${cy-r*Math.sin(a0)} A${r},${r} 0 0,${sw} ${cx+r*Math.cos(a1)},${cy-r*Math.sin(a1)}`,fill:"none",stroke:"var(--red)","stroke-width":2.5,opacity:.8},g);txt(g,cx,cy+5,"τ",{"text-anchor":"middle","font-style":"italic",fill:"var(--red)"})}
+  const thd=th*180/Math.PI;S.ro6.th.textContent=fx(thd,0)+"°";S.ro6.tau.textContent=si(tm*tau,"N·m");S.ro6.max.textContent=si(tm,"N·m");
+  const p=$("#v6p");p.innerHTML="";const G=graph(p,{xmin:-180,xmax:180,ymin:-1.15,ymax:1.15,b:122,xt:[[-180,"−180°"],[-90,"−90°"],[0,"0"],[90,"90°"],[180,"180°"]],yt:[[-1,"−τmax"],[0,"0"],[1,"τmax"]],yl:t("tauPlot")});
+  let d="";for(let k=0;k<=180;k++){const a=-180+2*k;const v=-(S.m6==="motor"?(Math.sin(deg(a))>0?-1:1):1)*Math.sin(deg(a));d+=(k?"L":"M")+G.X(a).toFixed(1)+","+G.Y(v).toFixed(1)}
+  E("path",{d,fill:"none",stroke:"var(--blue)","stroke-width":2.5},p);E("circle",{cx:G.X(thd),cy:G.Y(tau),r:6,fill:"var(--magenta)"},p);}
+
+/* 7. Biot-Savart */
+(function(){const c=$("#c7");seg(c,{id:"sh7",key:"shape",options:[["wire","wire"],["arc","arc"],["axis","loopAxis"]],value:"wire",on:u7});
+  check(c,{id:"semi7",key:"semi",value:false,on:u7});
+  slider(c,{id:"i7",key:"curr",min:0.5,max:20,step:0.5,value:10,fmt:v=>v.toFixed(1)+" A",on:u7});
+  slider(c,{id:"R7",key:"dist",min:1,max:20,step:0.5,value:5,fmt:v=>v.toFixed(1)+" cm",on:u7});
+  slider(c,{id:"phi7",key:"arcAng",min:0,max:360,step:5,value:180,fmt:v=>v+"°",on:u7});
+  slider(c,{id:"z7",key:"zpos",min:-3,max:3,step:0.05,value:1,fmt:v=>minus(v.toFixed(2))+" R",on:u7});
+  S.ro7=readout(c,[["B","rB7"],["num","rNum"],["form","rForm"]]);S.note7=H("div",{class:"small"},c);})();
+function u7(){const g=$("#v7");g.innerHTML="";const p=$("#v7p");p.innerHTML="";const i=S.i7,R=S.R7/100,mode=S.sh7;
+  const show=(id,on)=>{const el=$("#"+id).closest(".ctl")||$("#"+id).closest("label");el.style.display=on?"":"none"};
+  show("semi7",mode==="wire");show("phi7",mode==="arc");show("z7",mode==="axis");
+  $("#R7").closest(".ctl").querySelector("span").innerHTML=t(mode==="wire"?"dist":"radius");S.note7.textContent=mode==="axis"?t("axisNote"):"";
+  let B,num,form;
+  if(mode==="wire"){const semi=S.semi7;const wx=110;E("line",{x1:wx,x2:wx,y1:semi?150:10,y2:290,stroke:"var(--ink)","stroke-width":4},g);if(semi)E("circle",{cx:wx,cy:150,r:3,fill:"var(--ink)"},g);
+    arrow(g,wx-16,230,wx-16,180,"var(--blue)",2.2);txt(g,wx-30,210,"i",{"font-style":"italic",fill:"var(--blue)"});
+    // field marks: into on right, out on left, size ~1/r
+    for(let k=1;k<=5;k++){const r=k*38;const sz=Math.max(2.5,22/k);for(const y of[50,105,200,260]){if(wx+r<430)xMark(g,wx+r,y,sz*.45,"var(--red)",.8);if(wx-r>8)dMark(g,wx-r,y,sz*.22,"var(--red)",.8)}}
+    const Rp=Math.min(300,R/0.2*300);const Px=wx+Rp*0.98;E("line",{x1:wx,x2:Px,y1:150,y2:150,stroke:"var(--muted)","stroke-dasharray":"3 3"},g);
+    E("circle",{cx:Px,cy:150,r:6,fill:"var(--magenta)"},g);txt(g,Px+8,140,"P",{"font-weight":700,fill:"var(--magenta)"});txt(g,(wx+Px)/2,168,"R",{"font-style":"italic","text-anchor":"middle"});
+    B=MU0*i/((semi?4:2)*Math.PI*R);num=0;const N=2000,Lm=400*R;for(let k=0;k<N;k++){const s0=semi?0:-Lm,s1=Lm;const ds=(s1-s0)/N,s=s0+(k+.5)*ds;num+=MU0/(4*Math.PI)*i*ds*R/Math.pow(s*s+R*R,1.5)}
+    form=semi?"μ₀i/(4πR)":"μ₀i/(2πR)";
+    const Bm=MU0*i/((semi?4:2)*Math.PI*0.01);const G=graph(p,{xmin:0,xmax:20,ymin:0,ymax:Bm*1.08,xt:[[0,"0"],[5,"5 cm"],[10,"10 cm"],[15,"15 cm"],[20,"20 cm"]],yt:[[0,"0"],[Bm,si(Bm,"T",3)]],yl:t("gWire")});
+    let d="";for(let k=0;k<=200;k++){const rr=1+19*k/200;d+=(k?"L":"M")+G.X(rr).toFixed(1)+","+G.Y(MU0*i/((semi?4:2)*Math.PI*rr/100)).toFixed(1)}E("path",{d,fill:"none",stroke:"var(--blue)","stroke-width":2.5},p);E("circle",{cx:G.X(S.R7),cy:G.Y(B),r:6,fill:"var(--magenta)"},p)}
+  else if(mode==="arc"){const cx=220,cy=165,r=110,ph=deg(S.phi7);const a0=-Math.PI/2+0;let d=`M${cx+r*Math.cos(a0)},${cy-r*Math.sin(a0)}`;const n=80;for(let k=1;k<=n;k++){const a=a0+ph*k/n;d+=` L${cx+r*Math.cos(a)},${cy-r*Math.sin(a)}`}
+    E("path",{d,fill:"none",stroke:"var(--ink)","stroke-width":4},g);E("line",{x1:cx,y1:cy,x2:cx+r*Math.cos(a0),y2:cy-r*Math.sin(a0),stroke:"var(--muted)","stroke-dasharray":"3 3"},g);E("line",{x1:cx,y1:cy,x2:cx+r*Math.cos(a0+ph),y2:cy-r*Math.sin(a0+ph),stroke:"var(--muted)","stroke-dasharray":"3 3"},g);
+    if(S.phi7>10){const am=a0+ph*0.5;const tx=-Math.sin(am),ty=-Math.cos(am);const mx=cx+(r+16)*Math.cos(am),my=cy-(r+16)*Math.sin(am);arrow(g,mx-tx*14,my-ty*14,mx+tx*14,my+ty*14,"var(--blue)",2.5);txt(g,mx+tx*14+8,my+ty*14,"i",{"font-style":"italic",fill:"var(--blue)"})}
+    txt(g,cx+28,cy-6,"φ",{"font-style":"italic",fill:"var(--muted)"});B=MU0*i*ph/(4*Math.PI*R);dotOut(g,cx,cy,6+16*S.phi7/360,"var(--red)");txt(g,cx-30,cy+30,"B ⊙",{fill:"var(--red)","font-weight":700});
+    num=0;const N=2000;for(let k=0;k<N;k++){num+=MU0/(4*Math.PI)*i*(R*ph/N)/(R*R)}form="μ₀iφ/(4πR)"+(S.phi7===360?" = μ₀i/(2R)":"");
+    const Bm=MU0*i*2*Math.PI/(4*Math.PI*R);const G=graph(p,{xmin:0,xmax:360,ymin:0,ymax:Bm*1.08,xt:[[0,"0"],[90,"90°"],[180,"180°"],[270,"270°"],[360,"360°"]],yt:[[0,"0"],[Bm,"μ₀i/2R"]],yl:t("gArc")});
+    E("line",{x1:G.X(0),y1:G.Y(0),x2:G.X(360),y2:G.Y(Bm),stroke:"var(--blue)","stroke-width":2.5},p);E("circle",{cx:G.X(S.phi7),cy:G.Y(B),r:6,fill:"var(--magenta)"},p)}
+  else{const cx=220,cy=215,rx=95,ry=26;const z=S.z7;const pz=cy-z*48;E("line",{x1:cx,x2:cx,y1:20,y2:290,stroke:"var(--muted)","stroke-dasharray":"4 4"},g);
+    E("path",{d:`M${cx-rx},${cy} A${rx},${ry} 0 0,1 ${cx+rx},${cy}`,fill:"none",stroke:"var(--ink)","stroke-width":3.5,opacity:.5},g);E("path",{d:`M${cx-rx},${cy} A${rx},${ry} 0 0,0 ${cx+rx},${cy}`,fill:"none",stroke:"var(--ink)","stroke-width":4},g);
+    arrow(g,cx+40,cy+ry-1,cx+62,cy+ry-6,"var(--blue)",2.5);txt(g,cx+70,cy+ry+8,"i",{"font-style":"italic",fill:"var(--blue)"});E("line",{x1:cx,y1:cy,x2:cx+rx,y2:cy,stroke:"var(--muted)","stroke-dasharray":"2 3"},g);txt(g,cx+rx/2,cy-5,"R",{"font-style":"italic","text-anchor":"middle"});
+    B=MU0*i*R*R/(2*Math.pow(R*R+(z*R)**2,1.5));const B0=MU0*i/(2*R);const al=12+60*B/B0;E("circle",{cx,cy:pz,r:5,fill:"var(--magenta)"},g);txt(g,cx+10,pz+4,"P",{"font-weight":700,fill:"var(--magenta)"});
+    arrow(g,cx-14,pz,cx-14,pz-al,"var(--red)",3,10);txt(g,cx-24,pz-al/2,"B",{"text-anchor":"end","font-weight":700,fill:"var(--red)"});txt(g,cx+12,(pz+cy)/2,"z",{"font-style":"italic"});
+    num=0;const N=2000;const zz=z*R;for(let k=0;k<N;k++){const ds=2*Math.PI*R/N;const r2=R*R+zz*zz;num+=MU0/(4*Math.PI)*i*ds/r2*(R/Math.sqrt(r2))}form="μ₀iR²/[2(R²+z²)<sup>3/2</sup>]";
+    const G=graph(p,{xmin:-3,xmax:3,ymin:0,ymax:B0*1.1,xt:[[-3,"−3R"],[-2,"−2R"],[-1,"−R"],[0,"0"],[1,"R"],[2,"2R"],[3,"3R"]],yt:[[0,"0"],[B0,"μ₀i/2R"]],yl:t("gAxis")});
+    let d="";for(let k=0;k<=200;k++){const zv=-3+6*k/200;d+=(k?"L":"M")+G.X(zv).toFixed(1)+","+G.Y(MU0*i*R*R/(2*Math.pow(R*R+(zv*R)**2,1.5))).toFixed(1)}E("path",{d,fill:"none",stroke:"var(--blue)","stroke-width":2.5},p);E("circle",{cx:G.X(z),cy:G.Y(B),r:6,fill:"var(--magenta)"},p)}
+  S.ro7.B.textContent=si(B,"T");S.ro7.num.textContent=si(num,"T");S.ro7.form.innerHTML=form;}
+
+/* 8. parallel currents */
+(function(){const c=$("#c8");slider(c,{id:"ia8",key:"ia",min:-20,max:20,step:1,value:10,fmt:v=>minus(v)+" A",on:u8});slider(c,{id:"ib8",key:"ib",min:-20,max:20,step:1,value:10,fmt:v=>minus(v)+" A",on:u8});
+  slider(c,{id:"d8",key:"sep",min:1,max:20,step:0.5,value:5,fmt:v=>v.toFixed(1)+" cm",on:u8});S.ro8=readout(c,[["B","rBa"],["F","rF8"],["k","rKind"]]);})();
+function u8(){const g=$("#v8");g.innerHTML="";const ia=S.ia8,ib=S.ib8,d=S.d8/100;const ya=50,yb=ya+40+S.d8*9;
+  [[ya,ia,"a"],[yb,ib,"b"]].forEach(([y,i,nm])=>{E("line",{x1:30,x2:410,y1:y,y2:y,stroke:"var(--ink)","stroke-width":4},g);txt(g,416,y+5,nm,{"font-weight":700});
+    if(i!==0)for(const x of[90,330])arrow(g,x-(i>0?18:-18),y-12,x+(i>0?18:-18),y-12,"var(--blue)",2.2);txt(g,60,y-20,(nm==="a"?"i_a = ":"i_b = ")+minus(i)+" A",{"font-size":13,fill:"var(--blue)"})});
+  // field of a at b
+  if(ia!==0)for(const x of[150,210,270])(ia>0?crossIn:dotOut)(g,x,yb,7,"var(--red)");if(ia!==0)txt(g,290,yb+26,"B_a",{"font-size":13,fill:"var(--red)"});
+  const Ba=MU0*Math.abs(ia)/(2*Math.PI*d),F=MU0*ia*ib/(2*Math.PI*d);const fl=14+46*Math.sqrt(Math.abs(F)/(MU0*400/(2*Math.PI*0.01)));
+  if(F!==0){const att=F>0;arrow(g,210,yb,210,yb+(att?-fl:fl),"var(--magenta)",3.5,11);arrow(g,210,ya,210,ya+(att?fl:-fl),"var(--magenta)",3.5,11);txt(g,222,yb+(att?-fl/2:fl/2+6),"F_ba",{"font-size":13,"font-weight":700,fill:"var(--magenta)"});txt(g,222,ya+(att?fl/2+4:-fl/2),"F_ab",{"font-size":13,"font-weight":700,fill:"var(--magenta)"})}
+  E("line",{x1:380,x2:380,y1:ya+4,y2:yb-4,stroke:"var(--muted)","stroke-dasharray":"3 3"},g);txt(g,386,(ya+yb)/2+4,"d",{"font-style":"italic"});
+  S.ro8.B.textContent=si(Ba,"T");S.ro8.F.textContent=si(Math.abs(F),"N")+t("perM");S.ro8.k.textContent=t(F===0?"nothing":F>0?"attract":"repel");}
+
+/* 9. Ampere's law */
+const A9={x:170,y:150,wires:[[140,130,"i1"],[290,195,"i2"],[345,80,"i3"]]};
+(function(){const c=$("#c9");slider(c,{id:"i1",key:"i1",min:-10,max:10,step:1,value:6,fmt:v=>minus(v)+" A",on:u9});slider(c,{id:"i2",key:"i2",min:-10,max:10,step:1,value:-4,fmt:v=>minus(v)+" A",on:u9});
+  slider(c,{id:"i3",key:"i3",min:-10,max:10,step:1,value:3,fmt:v=>minus(v)+" A",on:u9});slider(c,{id:"r9",key:"loopR",min:20,max:140,step:1,value:100,fmt:v=>v+" mm",on:u9});
+  S.ro9=readout(c,[["int","rInt"],["enc","rEnc"],["mu","rMu"]]);
+  const sv=$("#v9");let drag=false;const pt=e=>{const r=sv.getBoundingClientRect();return[(e.clientX-r.left)/r.width*440,(e.clientY-r.top)/r.height*300]};
+  sv.addEventListener("pointerdown",e=>{drag=true;sv.setPointerCapture(e.pointerId);[A9.x,A9.y]=pt(e);u9()});sv.addEventListener("pointermove",e=>{if(drag){[A9.x,A9.y]=pt(e);u9()}});
+  sv.addEventListener("pointerup",()=>drag=false);sv.addEventListener("pointercancel",()=>drag=false);})();
+function Bat(x,y){let bx=0,by=0;A9.wires.forEach(([wx,wy,id])=>{const i=S[id];const dx=(x-wx)/1000,dy=-(y-wy)/1000;const r2=dx*dx+dy*dy;if(r2<1e-8)return;const k=MU0*i/(2*Math.PI*r2);bx+=-dy*k;by+=dx*k});return[bx,by]} // math coords (y up)
+function u9(){const g=$("#v9");g.innerHTML="";const R=S.r9;
+  for(let x=20;x<440;x+=30)for(let y=18;y<300;y+=30){const[bx,by]=Bat(x,y);const m=Math.hypot(bx,by);if(m<1e-9)continue;const l=Math.min(12,4+Math.log10(m/1e-6+1)*4);E("line",{x1:x,y1:y,x2:x+bx/m*l,y2:y-by/m*l,stroke:"var(--muted)","stroke-width":1.2,opacity:.55},g);E("circle",{cx:x+bx/m*l,cy:y-by/m*l,r:1.4,fill:"var(--muted)",opacity:.7},g)}
+  const N=360;let sum=0;for(let k=0;k<N;k++){const a0=2*Math.PI*k/N,a1=2*Math.PI*(k+1)/N,am=(a0+a1)/2;const x=A9.x+R*Math.cos(am),y=A9.y-R*Math.sin(am);const[bx,by]=Bat(x,y);
+    const dsx=-Math.sin(am)*R*(a1-a0)/1000,dsy=Math.cos(am)*R*(a1-a0)/1000;const v=bx*dsx+by*dsy;sum+=v;
+    if(k%3===0){const x0=A9.x+R*Math.cos(a0),y0=A9.y-R*Math.sin(a0),x1=A9.x+R*Math.cos(a0+3*(a1-a0)),y1=A9.y-R*Math.sin(a0+3*(a1-a0));E("line",{x1:x0,y1:y0,x2:x1,y2:y1,stroke:v>=0?"var(--blue)":"var(--red)","stroke-width":4,"stroke-linecap":"round"},g)}}
+  for(const a of[0.3,2.4,4.4]){const x=A9.x+R*Math.cos(a),y=A9.y-R*Math.sin(a);arrow(g,x,y,x-Math.sin(a)*14,y-Math.cos(a)*14,"var(--ink)",2,8)}
+  let enc=0;A9.wires.forEach(([wx,wy,id],k)=>{const i=S[id];const inside=Math.hypot(wx-A9.x,wy-A9.y)<R;if(inside)enc+=i;
+    if(i>0)dotOut(g,wx,wy,10,"var(--green)");else if(i<0)crossIn(g,wx,wy,10,"var(--green)");else E("circle",{cx:wx,cy:wy,r:10,fill:"var(--panel)",stroke:"var(--muted)","stroke-width":2},g);
+    txt(g,wx+14,wy-10,"i"+"₁₂₃"[k]+" = "+minus(i)+" A",{"font-size":12,fill:"var(--green)","font-weight":inside?700:400})});
+  E("circle",{cx:A9.x,cy:A9.y,r:3,fill:"var(--ink)"},g);
+  S.ro9.int.textContent=si(sum,"T·m",4);S.ro9.enc.textContent=minus(enc)+" A";S.ro9.mu.textContent=si(MU0*enc,"T·m",4);}
+(function thick(){const g=$("#v9b");const G=graph(g,{l:76,r:390,b:130,xmin:0,xmax:4,ymin:0,ymax:1.15,xt:[[0,"0"],[1,"R"],[2,"2R"],[3,"3R"],[4,"4R"]],yt:[[0,"0"],[1,"μ₀i/2πR"]],yl:""});
+  E("rect",{x:G.X(0),y:14,width:G.X(1)-G.X(0),height:116,fill:"var(--cyan)",opacity:.15},g);
+  let d="";for(let k=0;k<=200;k++){const r=4*k/200;const v=r<1?r:1/r;d+=(k?"L":"M")+G.X(r).toFixed(1)+","+G.Y(v).toFixed(1)}E("path",{d,fill:"none",stroke:"var(--blue)","stroke-width":2.5},g);
+  txt(g,G.X(0.5),G.Y(0.25),"∝ r",{"text-anchor":"middle","font-size":12,fill:"var(--blue)"});txt(g,G.X(2.4),G.Y(0.62),"∝ 1/r",{"text-anchor":"middle","font-size":12,fill:"var(--blue)"});})();
+
+/* 10. solenoid */
+(function(){const c=$("#c10");slider(c,{id:"i10",key:"curr",min:0.1,max:5,step:0.1,value:2,fmt:v=>v.toFixed(1)+" A",on:u10});
+  slider(c,{id:"n10",key:"turnsN",min:100,max:5000,step:100,value:1000,fmt:v=>v+" /m",on:u10});slider(c,{id:"h10",key:"loopH",min:2,max:20,step:0.5,value:10,fmt:v=>v.toFixed(1)+" cm",on:u10});
+  S.ro10=readout(c,[["B","rB10"],["nh","rTurns"],["bh","rBh"]]);})();
+function u10(){const g=$("#v10");g.innerHTML="";const yt=70,yb=170,x0=30,x1=410;const nShow=Math.round(8+S.n10/5000*22);const sp=(x1-x0)/nShow;
+  for(let k=0;k<nShow;k++){const x=x0+sp*(k+.5);dotOut(g,x,yt,Math.min(7,sp*.4),"var(--ink)");crossIn(g,x,yb,Math.min(7,sp*.4),"var(--ink)")}
+  txt(g,x1+6,yt+5,t("outTxt"),{"font-size":12,fill:"var(--muted)"});txt(g,x1+6,yb+5,t("inTxt"),{"font-size":12,fill:"var(--muted)"});
+  const lw=1+3*Math.min(1,S.i10*S.n10/5000);for(const y of[100,120,140])arrow(g,x0,y,x1-6,y,"var(--red)",lw,10);txt(g,x1-30,95,"B",{"font-weight":700,fill:"var(--red)"});
+  txt(g,220,32,t("zero"),{"text-anchor":"middle","font-size":13,fill:"var(--muted)"});txt(g,220,222,t("zero"),{"text-anchor":"middle","font-size":13,fill:"var(--muted)"});
+  const hw=S.h10*17;const ax=220-hw/2,bx=220+hw/2;E("rect",{x:ax,y:40,width:hw,height:90,fill:"none",stroke:"var(--magenta)","stroke-width":3},g);
+  [["a",ax,140],["b",bx,140],["c",bx,36],["d",ax,36]].forEach(([s,x,y])=>txt(g,x+(s==="a"||s==="d"?-12:4),y,s,{"font-size":14,fill:"var(--magenta)","font-weight":700}));
+  arrow(g,ax+10,130,ax+hw/2,130,"var(--magenta)",3,9);txt(g,220,250,"h = "+S.h10.toFixed(1)+" cm",{"text-anchor":"middle","font-size":12,fill:"var(--magenta)"});
+  const B=MU0*S.i10*S.n10;const nh=S.n10*S.h10/100;S.ro10.B.textContent=si(B,"T");S.ro10.nh.textContent=fx(nh,0);S.ro10.bh.textContent=si(B*S.h10/100,"T·m")+" = "+si(MU0*S.i10*nh,"T·m");}
+
+/* text and loop */
+function applyText(){document.querySelectorAll("[data-i18n]").forEach(el=>{el.innerHTML=t(el.dataset.i18n)})}
+let last=performance.now();
+function frame(now){const dt=Math.min(0.05,(now-last)/1000);last=now;anims.forEach(f=>f(dt));
+  step2(dt);step3(dt);step4(dt);step6(dt);draw2();draw3();draw4();draw5(dt);draw6();requestAnimationFrame(frame)}
+applyText();u1();fire2();u3();u4();u5();u7();u8();u9();u10();requestAnimationFrame(frame);
+</script>
+</body>
+</html>
