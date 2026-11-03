@@ -95,7 +95,7 @@ dl.read dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weig
 .boxed{border:1.5px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--panel);font-size:16px}
 .boxed h3{margin:0 0 6px;font-size:17px}
 
-.mag{color:var(--magenta)}
+.mag{color:#B52AAB}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mag{color:var(--magenta)}}:root[data-theme="dark"] .mag{color:var(--magenta)}
 .bars{display:flex;flex-direction:column;gap:7px;font-size:14px}
 .bar-row{display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:8px;align-items:center}
 .bar-track{height:14px;background:var(--grid);border-radius:4px;overflow:hidden;position:relative}
@@ -405,7 +405,7 @@ en:{
  dragHint:"Drag inside the picture to move the Ampère loop. The loop is traversed counterclockwise, so currents out of the page (⊙) count as positive.",
  outside:"outside",inside:"inside a wire of radius R",
  loopR:"Loop radius",i1:"Current <i>i</i><sub>1</sub>",i2:"Current <i>i</i><sub>2</sub>",i3:"Current <i>i</i><sub>3</sub>",
- rInt:"∮ <b>B</b> · d<b>s</b> (numerical, 360 pieces)",rEnc:"<i>i</i><sub>enc</sub>",rMu:"<i>μ</i><sub>0</sub><i>i</i><sub>enc</sub>",
+ rInt:"∮ <b>B</b> · d<b>s</b> (numerical, 360 pieces, refined near wires)",onLoop:"undefined: a wire lies on the loop (move it at least 0.5 mm away)",rEnc:"<i>i</i><sub>enc</sub>",rMu:"<i>μ</i><sub>0</sub><i>i</i><sub>enc</sub>",
  n9:"Currents outside the loop still bend the field along it, but their contributions to ∮B·ds add up to zero. Blue segments of the loop have B·ds > 0, red ones B·ds < 0.",
  thickH:"Inside a thick wire",
  thickP:"",
@@ -527,7 +527,7 @@ const H3={t:0,parts:[]};const NMAT={cu:8.49e28,semi:1e23};
 function restart3(){H3.t=0;H3.parts.forEach(p=>{p.x=Math.random();p.y=Math.random()});u3()}
 function u3(){const n=NMAT[S.mat3];const V=S.B3*S.i3/(n*S.l3*1e-3*EC);const hh=1-Math.exp(-H3.t/0.6);
   S.ro3.V.textContent=si(V,"V")+(hh<0.97?" ("+t("building")+")":"");S.ro3.hi.textContent=t(S.car3==="e"?"left":"right");
-  S.ro3.n.textContent=sci(S.B3*S.i3/(V*S.l3*1e-3*EC))+" m⁻³";}
+  const nEst=S.B3*S.i3/(V*S.l3*1e-3*EC);S.ro3.n.textContent=(V>0&&isFinite(nEst))?sci(nEst)+" m⁻³":"—";}
 function step3(dt){H3.t+=dt;const hh=1-Math.exp(-H3.t/0.6);const up=S.car3==="e"?-1:1;
   H3.parts.forEach(p=>{p.y+=up*0.3*dt;if(p.y<0){p.y+=1;p.x=Math.random()}if(p.y>1){p.y-=1;p.x=Math.random()}p.x=Math.min(0.97,p.x+0.5*(1-hh)*dt)});
   if(H3.t<6)u3();}
@@ -674,25 +674,30 @@ function u8(){const g=$("#v8");g.innerHTML="";const ia=S.ia8,ib=S.ib8,d=S.d8/100
   S.ro8.B.textContent=si(Ba,"T");S.ro8.F.textContent=si(Math.abs(F),"N")+t("perM");S.ro8.k.textContent=t(F===0?"nothing":F>0?"attract":"repel");}
 
 /* 9. Ampere's law */
-const A9={x:170,y:150,wires:[[140,130,"i1"],[290,195,"i2"],[345,80,"i3"]]};
-(function(){const c=$("#c9");slider(c,{id:"i1",key:"i1",min:-10,max:10,step:1,value:6,fmt:v=>minus(v)+" A",on:u9});slider(c,{id:"i2",key:"i2",min:-10,max:10,step:1,value:-4,fmt:v=>minus(v)+" A",on:u9});
-  slider(c,{id:"i3",key:"i3",min:-10,max:10,step:1,value:3,fmt:v=>minus(v)+" A",on:u9});slider(c,{id:"r9",key:"loopR",min:20,max:140,step:1,value:100,fmt:v=>v+" mm",on:u9});
+const A9={x:170,y:150,wires:[[140,130,"a9i1"],[290,195,"a9i2"],[345,80,"a9i3"]]};
+(function(){const c=$("#c9");slider(c,{id:"a9i1",key:"i1",min:-10,max:10,step:1,value:6,fmt:v=>minus(v)+" A",on:u9});slider(c,{id:"a9i2",key:"i2",min:-10,max:10,step:1,value:-4,fmt:v=>minus(v)+" A",on:u9});
+  slider(c,{id:"a9i3",key:"i3",min:-10,max:10,step:1,value:3,fmt:v=>minus(v)+" A",on:u9});slider(c,{id:"r9",key:"loopR",min:20,max:140,step:1,value:100,fmt:v=>v+" mm",on:u9});
   S.ro9=readout(c,[["int","rInt"],["enc","rEnc"],["mu","rMu"]]);
   const sv=$("#v9");let drag=false;const pt=e=>{const r=sv.getBoundingClientRect();return[(e.clientX-r.left)/r.width*440,(e.clientY-r.top)/r.height*300]};
   sv.addEventListener("pointerdown",e=>{drag=true;sv.setPointerCapture(e.pointerId);[A9.x,A9.y]=pt(e);u9()});sv.addEventListener("pointermove",e=>{if(drag){[A9.x,A9.y]=pt(e);u9()}});
   sv.addEventListener("pointerup",()=>drag=false);sv.addEventListener("pointercancel",()=>drag=false);})();
-function Bat(x,y){let bx=0,by=0;A9.wires.forEach(([wx,wy,id])=>{const i=S[id];const dx=(x-wx)/1000,dy=-(y-wy)/1000;const r2=dx*dx+dy*dy;if(r2<1e-8)return;const k=MU0*i/(2*Math.PI*r2);bx+=-dy*k;by+=dx*k});return[bx,by]} // math coords (y up)
+function Bat(x,y){let bx=0,by=0;A9.wires.forEach(([wx,wy,id])=>{const i=S[id];const dx=(x-wx)/1000,dy=-(y-wy)/1000;const r2=dx*dx+dy*dy;if(r2<1e-14)return;const k=MU0*i/(2*Math.PI*r2);bx+=-dy*k;by+=dx*k});return[bx,by]} // math coords (y up)
 function u9(){const g=$("#v9");g.innerHTML="";const R=S.r9;
   for(let x=20;x<440;x+=30)for(let y=18;y<300;y+=30){const[bx,by]=Bat(x,y);const m=Math.hypot(bx,by);if(m<1e-9)continue;const l=Math.min(12,4+Math.log10(m/1e-6+1)*4);E("line",{x1:x,y1:y,x2:x+bx/m*l,y2:y-by/m*l,stroke:"var(--muted)","stroke-width":1.2,opacity:.55},g);E("circle",{cx:x+bx/m*l,cy:y-by/m*l,r:1.4,fill:"var(--muted)",opacity:.7},g)}
-  const N=360;let sum=0;for(let k=0;k<N;k++){const a0=2*Math.PI*k/N,a1=2*Math.PI*(k+1)/N,am=(a0+a1)/2;const x=A9.x+R*Math.cos(am),y=A9.y-R*Math.sin(am);const[bx,by]=Bat(x,y);
-    const dsx=-Math.sin(am)*R*(a1-a0)/1000,dsy=Math.cos(am)*R*(a1-a0)/1000;const v=bx*dsx+by*dsy;sum+=v;
+  // Each of the 360 pieces is split further (at most 512 sub-pieces) when a wire lies close to it, so the midpoint sums stay accurate near the loop.
+  const N=360,dA=2*Math.PI/N;const wpol=A9.wires.map(([wx,wy])=>[Math.atan2(A9.y-wy,wx-A9.x),Math.hypot(wx-A9.x,wy-A9.y)]);let sum=0;
+  for(let k=0;k<N;k++){const a0=dA*k,a1=dA*(k+1),am0=a0+dA/2;let dmin=Infinity;
+    wpol.forEach(([th,rho])=>{const da=Math.max(0,Math.abs(((th-am0)%(2*Math.PI)+3*Math.PI)%(2*Math.PI)-Math.PI)-dA/2);dmin=Math.min(dmin,Math.hypot(rho-R,R*da))});
+    const m=Math.min(512,Math.max(1,Math.ceil(32*R*dA/Math.max(dmin,1e-6))));let v=0;
+    for(let j=0;j<m;j++){const am=a0+(j+0.5)*dA/m;const[bx,by]=Bat(A9.x+R*Math.cos(am),A9.y-R*Math.sin(am));v+=(-bx*Math.sin(am)+by*Math.cos(am))*R*dA/m/1000}sum+=v;
     if(k%3===0){const x0=A9.x+R*Math.cos(a0),y0=A9.y-R*Math.sin(a0),x1=A9.x+R*Math.cos(a0+3*(a1-a0)),y1=A9.y-R*Math.sin(a0+3*(a1-a0));E("line",{x1:x0,y1:y0,x2:x1,y2:y1,stroke:v>=0?"var(--blue)":"var(--red)","stroke-width":4,"stroke-linecap":"round"},g)}}
   for(const a of[0.3,2.4,4.4]){const x=A9.x+R*Math.cos(a),y=A9.y-R*Math.sin(a);arrow(g,x,y,x-Math.sin(a)*14,y-Math.cos(a)*14,"var(--ink)",2,8)}
-  let enc=0;A9.wires.forEach(([wx,wy,id],k)=>{const i=S[id];const inside=Math.hypot(wx-A9.x,wy-A9.y)<R;if(inside)enc+=i;
+  let enc=0,touch=false;A9.wires.forEach(([wx,wy,id],k)=>{const i=S[id];const rho=Math.hypot(wx-A9.x,wy-A9.y),inside=rho<R;if(inside)enc+=i;if(i!==0&&Math.abs(rho-R)<0.5)touch=true;
     if(i>0)dotOut(g,wx,wy,10,"var(--green)");else if(i<0)crossIn(g,wx,wy,10,"var(--green)");else E("circle",{cx:wx,cy:wy,r:10,fill:"var(--panel)",stroke:"var(--muted)","stroke-width":2},g);
     txt(g,wx+14,wy-10,"i"+"₁₂₃"[k]+" = "+minus(i)+" A",{"font-size":12,fill:"var(--green)","font-weight":inside?700:400})});
   E("circle",{cx:A9.x,cy:A9.y,r:3,fill:"var(--ink)"},g);
-  S.ro9.int.textContent=si(sum,"T·m",4);S.ro9.enc.textContent=minus(enc)+" A";S.ro9.mu.textContent=si(MU0*enc,"T·m",4);}
+  S.ro9.int.textContent=si(sum,"T·m",4);if(touch){S.ro9.enc.textContent=t("onLoop");S.ro9.mu.textContent="—";return}
+  S.ro9.enc.textContent=minus(enc)+" A";S.ro9.mu.textContent=si(MU0*enc,"T·m",4);}
 (function thick(){const g=$("#v9b");const G=graph(g,{l:76,r:390,b:130,xmin:0,xmax:4,ymin:0,ymax:1.15,xt:[[0,"0"],[1,"R"],[2,"2R"],[3,"3R"],[4,"4R"]],yt:[[0,"0"],[1,"μ₀i/2πR"]],yl:""});
   E("rect",{x:G.X(0),y:14,width:G.X(1)-G.X(0),height:116,fill:"var(--cyan)",opacity:.15},g);
   let d="";for(let k=0;k<=200;k++){const r=4*k/200;const v=r<1?r:1/r;d+=(k?"L":"M")+G.X(r).toFixed(1)+","+G.Y(v).toFixed(1)}E("path",{d,fill:"none",stroke:"var(--blue)","stroke-width":2.5},g);
