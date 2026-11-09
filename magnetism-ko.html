@@ -127,6 +127,9 @@ svg .gridl{stroke:var(--grid);stroke-width:1}
 .legend i.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;font-style:normal}
 .pill{font-size:14px;padding:6px 10px;border-radius:8px;background:color-mix(in srgb,var(--blue) 10%,transparent);border-left:4px solid var(--blue)}
 .sim.one{grid-template-columns:minmax(0,1fr) minmax(250px,.8fr)}
+.v3box{display:flex;flex-direction:column;gap:8px}.v3box[hidden]{display:none}
+.v3{touch-action:none;cursor:grab;border-radius:8px;background:color-mix(in srgb,var(--paper) 60%,transparent)}.v3:active{cursor:grabbing}
+.v3bar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}.v3note{font-size:14.5px}
 @media (max-width:820px){.sim.one{grid-template-columns:1fr}}
 
 .hero-orbit{width:100%;height:auto;display:block;margin-top:28px}
@@ -345,6 +348,16 @@ button.theme-btn svg{width:20px; height:20px; fill:none; stroke:currentColor; st
 <script>
 const I18N={
 ko:{
+ view:"보기",v2d:"2D (평면)",v3d:"3D",reset3d:"시점 초기화",
+ hint3d:"끌어서 돌려 보세요. 그림을 클릭한 뒤 화살표 키로도 돌릴 수 있고(Shift를 누르면 크게), Home 키나 ‘시점 초기화’를 누르면 처음 시점으로 돌아옵니다.",
+ rh1:"오른손 법칙: 손가락을 <b>v</b> 방향으로 뻗고 <b>B</b> 쪽으로(회색 호) 감으면 엄지가 <b>v</b> × <b>B</b> 방향입니다. 양전하에 작용하는 힘은 엄지 방향이고, 음전하에는 반대 방향입니다. 색칠한 평행사변형의 넓이가 |<b>v</b> × <b>B</b>| = <i>vB</i> sin <i>φ</i>입니다.",
+ rh4:"자기장은 축 방향입니다. 속도의 <b>B</b> 방향 성분은 그대로이고 수직 성분만 원을 그리며 돌기 때문에 경로가 나선이 됩니다. 힘(자홍색)은 항상 축을 향합니다. <b>B</b>가 나를 향하도록 보면 양전하는 시계 방향, 음전하는 시계 반대 방향으로 돕니다.",
+ rh5:"손가락을 전류 <i>i</i><b>L</b> 방향으로 뻗고 <b>B</b> 쪽으로 감으면 엄지가 힘 <i>i</i><b>L</b> × <b>B</b>의 방향입니다.",
+ rh6:"오른손 손가락을 고리의 전류 방향으로 감으면 엄지가 자기 모멘트 <b>μ</b>(초록) 방향입니다. 긴 두 변에 작용하는 힘(자홍색)이 짝힘을 이루고, 돌림힘 <b>τ</b> = <b>μ</b> × <b>B</b>(빨강)가 <b>μ</b>를 <b>B</b> 쪽으로 돌립니다. 짧은 두 변에 작용하는 흐린 힘은 서로 상쇄됩니다.",
+ rh7:"엄지를 전류 방향으로 하여 오른손으로 도선을 감아쥐면 손가락이 자기력선이 도는 방향입니다. 호나 원형 고리에서는 손가락을 전류 방향으로 감으면 엄지가 중심이나 축 위에서 <b>B</b>의 방향입니다.",
+ rh8:"빨간 원은 도선 b를 지나는 도선 a의 자기력선입니다. b에서 <b>B</b><sub>a</sub>는 이 원에 접하고, 두 전류가 같은 방향이면 <i>i</i><sub>b</sub><b>L</b> × <b>B</b><sub>a</sub>가 b를 a 쪽으로 당기고 반대 방향이면 밀어냅니다.",
+ rh10:"손가락을 감긴 도선의 전류 방향으로 감으면 엄지가 솔레노이드 안 <b>B</b>의 방향입니다. 길고 이상적인 솔레노이드 밖의 자기장은 거의 0입니다.",
+
  nav:["전하가 받는 힘","교차장","Hall 효과","원운동","도선이 받는 힘","전류고리의 토크","비오–사바르","평행한 전류","앙페르 법칙","솔레노이드"],
  credit:"<b>이상훈(Sang Hoon Lee)</b>의 강의 노트를 바탕으로 <b>Claude Opus 5.5</b>가 만들었습니다.",
  title:"움직이는 전하와 자기장",
@@ -717,11 +730,123 @@ function u10(){const g=$("#v10");g.innerHTML="";const yt=70,yb=170,x0=30,x1=410;
   arrow(g,ax+10,130,ax+hw/2,130,"var(--magenta)",3,9);txt(g,220,250,"h = "+S.h10.toFixed(1)+" cm",{"text-anchor":"middle","font-size":12,fill:"var(--magenta)"});
   const B=MU0*S.i10*S.n10;const nh=S.n10*S.h10/100;S.ro10.B.textContent=si(B,"T");S.ro10.nh.textContent=fx(nh,0);S.ro10.bh.textContent=si(B*S.h10/100,"T·m")+" = "+si(MU0*S.i10*nh,"T·m");}
 
+/* ---------- optional 3D views (orthographic, drag or arrow keys to rotate) ----------
+   World axes match the 2D figures: x to the right, y up the page, z out of the page toward you. */
+const V3s=[];
+function make3D(sec,{hide,build,anim=false,yaw=0.62,pitch=0.38,scale=88,h=300,note}){
+  const first=$("#"+hide[0]);const box=H("div",{class:"v3box"});box.hidden=true;first.parentNode.insertBefore(box,first);
+  const svg=E("svg",{viewBox:`0 0 440 ${h}`,class:"v3",role:"img",tabindex:"0","aria-label":"3D view"},box);
+  const bar=H("div",{class:"v3bar"},box);H("span",{class:"small","data-i18n":"hint3d"},bar);
+  const V={sec,svg,build,anim,yaw,pitch,yaw0:yaw,pitch0:pitch,scale,h,on:false,dirty:true,prims:[]};
+  const rb=H("button",{type:"button",class:"btn","data-i18n":"reset3d"},bar);const reset=()=>{V.yaw=V.yaw0;V.pitch=V.pitch0;V.dirty=true};rb.addEventListener("click",reset);
+  if(note)H("div",{class:"scrawl v3note","data-i18n":note},box);
+  let drag=null;
+  svg.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,id:e.pointerId};svg.setPointerCapture(e.pointerId);svg.focus({preventScroll:true})});
+  svg.addEventListener("pointermove",e=>{if(!drag||e.pointerId!==drag.id)return;const k=440/svg.getBoundingClientRect().width;
+    V.yaw+=(e.clientX-drag.x)*0.01*k;V.pitch=Math.max(-1.5,Math.min(1.5,V.pitch+(e.clientY-drag.y)*0.01*k));drag.x=e.clientX;drag.y=e.clientY;V.dirty=true});
+  const end=e=>{if(drag&&e.pointerId===drag.id)drag=null};["pointerup","pointercancel","lostpointercapture"].forEach(ev=>svg.addEventListener(ev,end));
+  svg.addEventListener("keydown",e=>{const st=e.shiftKey?0.3:0.08;
+    if(e.key==="ArrowLeft")V.yaw-=st;else if(e.key==="ArrowRight")V.yaw+=st;else if(e.key==="ArrowUp")V.pitch=Math.max(-1.5,V.pitch-st);else if(e.key==="ArrowDown")V.pitch=Math.min(1.5,V.pitch+st);else if(e.key==="Home")reset();else return;
+    e.preventDefault();V.dirty=true});
+  // 2D / 3D switch at the top of the section's controls
+  const c=$("#c"+sec);const d=H("div",{class:"ctl"});H("span",{class:"lbl","data-i18n":"view"},d);const g=H("div",{class:"seg",role:"group"},d);c.prepend(d);
+  [["2","v2d"],["3","v3d"]].forEach(([v,k])=>{const b=H("button",{type:"button","data-i18n":k,"aria-pressed":String(v==="2")},g);
+    b.addEventListener("click",()=>{V.on=v==="3";g.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));box.hidden=!V.on;
+      hide.forEach(id=>{$("#"+id).style.display=V.on?"none":""});V.dirty=true;render3(V)})});
+  c.addEventListener("input",()=>{V.dirty=true});c.addEventListener("click",()=>{V.dirty=true});
+  V3s.push(V);return V}
+function proj(V,[x,y,z]){const cy=Math.cos(V.yaw),sy=Math.sin(V.yaw),cp=Math.cos(V.pitch),sp=Math.sin(V.pitch);
+  const x1=x*cy+z*sy,z1=-x*sy+z*cy;const y2=y*cp-z1*sp,z2=y*sp+z1*cp;return[220+V.scale*x1,V.h/2-V.scale*y2,z2]}
+const add3=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],mul3=(a,s)=>[a[0]*s,a[1]*s,a[2]*s],cross3=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],len3=a=>Math.hypot(...a);
+// drawing primitives, sorted back to front before rendering
+const D3={
+  line(V,pts,col,w=2,o={}){const P=pts.map(p=>proj(V,p));for(let k=0;k<P.length-1;k++){const a=P[k],b=P[k+1];
+    V.prims.push({d:(a[2]+b[2])/2+(o.bias||0),f:g=>E("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:col,"stroke-width":w,"stroke-linecap":"round","stroke-dasharray":o.dash||"",opacity:o.op??1},g)})}},
+  arrow(V,a,b,col,w=3,label,o={}){const A=proj(V,a),B=proj(V,b);const hd=o.hd||11;
+    V.prims.push({d:(A[2]+B[2])/2+(o.bias||0),f:g=>{if(o.dash){E("line",{x1:A[0],y1:A[1],x2:B[0],y2:B[1],stroke:col,"stroke-width":w,"stroke-dasharray":o.dash,opacity:o.op??1},g);}
+      else arrow(g,A[0],A[1],B[0],B[1],col,w,hd);
+      if(o.dash){const dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy);if(L>4){const ux=dx/L,uy=dy/L,h=Math.min(hd,L*.6);E("polygon",{points:`${B[0]},${B[1]} ${B[0]-ux*h-uy*h*.5},${B[1]-uy*h+ux*h*.5} ${B[0]-ux*h+uy*h*.5},${B[1]-uy*h-ux*h*.5}`,fill:col,opacity:o.op??1},g)}}
+      if(label){const dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy)||1;txt(g,B[0]+dx/L*14,B[1]+dy/L*14+5,label,{"text-anchor":"middle","font-weight":700,fill:col,"font-size":15,stroke:"var(--panel)","stroke-width":4,"paint-order":"stroke"})}}})},
+  dot(V,p,r,col,o={}){const P=proj(V,p);V.prims.push({d:P[2]+(o.bias||0.02),f:g=>{E("circle",{cx:P[0],cy:P[1],r,fill:col,stroke:o.stroke||"var(--panel)","stroke-width":1.5},g);if(o.text)txt(g,P[0],P[1]+4,o.text,{"text-anchor":"middle","font-size":11,"font-weight":700,fill:"var(--panel)"});
+    if(o.label)txt(g,P[0]+r+5,P[1]-r,o.label,{"font-weight":700,fill:col,"font-size":14,stroke:"var(--panel)","stroke-width":4,"paint-order":"stroke"})}})},
+  poly(V,pts,fill,op=0.18){const P=pts.map(p=>proj(V,p));const d=P.reduce((s,p)=>s+p[2],0)/P.length;V.prims.push({d:d-0.3,f:g=>E("polygon",{points:P.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" "),fill,opacity:op},g)})},
+  text(V,p,s,col,o={}){const P=proj(V,p);V.prims.push({d:P[2]+1,f:g=>txt(g,P[0]+(o.dx||0),P[1]+(o.dy||0),s,Object.assign({"font-size":13,fill:col,stroke:"var(--panel)","stroke-width":4,"paint-order":"stroke"},o.attrs||{}))})},
+  ring(c,u,v,R,a0=0,a1=2*Math.PI,n=72){const pts=[];for(let k=0;k<=n;k++){const a=a0+(a1-a0)*k/n;pts.push(add3(c,add3(mul3(u,R*Math.cos(a)),mul3(v,R*Math.sin(a)))))}return pts}};
+function triad(V,g,labels=["x","y","z"]){const o=[46,V.h-40];[[1,0,0],[0,1,0],[0,0,1]].forEach((e,k)=>{const P=proj({...V,scale:24,h:0},e);const dx=P[0]-220,dy=P[1];
+  arrow(g,o[0],o[1],o[0]+dx,o[1]+dy,"var(--muted)",1.6,6);txt(g,o[0]+dx*1.45,o[1]+dy*1.45+4,labels[k],{"text-anchor":"middle","font-size":11,fill:"var(--muted)"})})}
+function render3(V){if(!V.on)return;V.prims=[];V.build(V);V.prims.sort((a,b)=>a.d-b.d);const g=V.svg;g.innerHTML="";V.prims.forEach(p=>p.f(g));triad(V,g);V.dirty=false}
+function tick3(){V3s.forEach(V=>{if(V.on&&(V.dirty||V.anim))render3(V)})}
+
+// §1  F = q v × B : v along x, B in the xy-plane at angle φ, v × B along z
+make3D(1,{hide:["v1"],note:"rh1",scale:120,build(V){const ph=deg(S.phi1),q=S.q1,s=Math.sin(ph);
+  const v=[0.45+0.95*S.v1s/10,0,0],B=mul3([Math.cos(ph),Math.sin(ph),0],0.45+0.75*S.B1/2);const vb=cross3(v,B);
+  D3.poly(V,[[0,0,0],v,add3(v,B),B],"var(--magenta)",0.14);
+  const n=len3(vb);const vbu=n>1e-6?mul3(vb,1/n):[0,0,0];const Lf=0.25+1.1*Math.abs(s);
+  D3.arrow(V,[0,0,0],v,"var(--blue)",3.5,"v");D3.arrow(V,[0,0,0],B,"var(--red)",3.5,"B");
+  const arc=D3.ring([0,0,0],[1,0,0],[0,1,0],0.32,0,ph>Math.PI?ph-2*Math.PI:ph,40);if(Math.abs(s)>1e-3||Math.abs(Math.cos(ph)+1)<1e-3){D3.line(V,arc,"var(--muted)",2);D3.arrow(V,arc[arc.length-3],arc[arc.length-1],"var(--muted)",2,"",{hd:8})}
+  if(n>1e-6){if(q<0)D3.arrow(V,[0,0,0],mul3(vbu,Lf*0.9),"var(--muted)",2,"v×B",{dash:"5 4",op:.8});D3.arrow(V,[0,0,0],mul3(vbu,Lf*q),"var(--magenta)",4,"F_B",{bias:.05})}
+  D3.dot(V,[0,0,0],10,q>0?"var(--red)":"var(--blue)",{text:q>0?"+":"−"});}});
+// §4  helix: B along +x; a charge circles about the axis while drifting along it
+make3D(4,{hide:["v4","v4h"],anim:true,note:"rh4",yaw:0.5,pitch:0.32,scale:80,build(V){const ph=deg(S.ph4),q=PM[S.pt4][1],sg=q>0?1:-1;
+  const R=0.62*Math.sin(ph)+0.02,adv=Math.max(0.05,1.25*Math.cos(ph)),x0=-1.9,th1=(3.8/adv)*2*Math.PI;
+  for(const [y,z] of [[1.1,-1.1],[-1.1,-1.1],[1.1,1.1],[-1.1,1.1]])D3.arrow(V,[-2.1,y,z],[2.1,y,z],"var(--red)",1.4,"",{op:.6,hd:8});
+  D3.text(V,[2.15,1.1,1.1],"B","var(--red)",{attrs:{"font-weight":700}});D3.line(V,[[-2.1,0,-sg*R],[2.1,0,-sg*R]],"var(--muted)",1,{dash:"3 4"});
+  const pos=th=>[x0+adv*th/(2*Math.PI),R*Math.sin(th),-sg*R*(1-Math.cos(th))];const pts=[];for(let k=0;k<=Math.min(1600,th1/0.05);k++)pts.push(pos(k*0.05));D3.line(V,pts,"var(--blue)",2.2,{op:.75});
+  const th=C4.th%th1,p=pos(th),p2=pos(th+0.01);const vdir=mul3([p2[0]-p[0],p2[1]-p[1],p2[2]-p[2]],1/len3([p2[0]-p[0],p2[1]-p[1],p2[2]-p[2]]));
+  const toC=[0,-p[1],-sg*R-p[2]],lc=len3(toC)||1;D3.arrow(V,p,add3(p,mul3(vdir,0.6)),"var(--blue)",3,"v");D3.arrow(V,p,add3(p,mul3(toC,0.45/lc)),"var(--magenta)",3,"F",{bias:.01});
+  D3.dot(V,p,8,"var(--blue)",{text:sg>0?"+":"−"});}});
+// §5  force on a wire: current along ±y, B along +z (out of the page), F along ±x
+make3D(5,{hide:["v5"],note:"rh5",build(V){const F=S.i5*S.L5*S.B5,bow=Math.sign(F)*0.5*Math.sqrt(Math.abs(F)/10);
+  if(S.B5>0)for(let x=-1.2;x<=1.21;x+=0.6)for(let y=-0.9;y<=0.91;y+=0.9)D3.arrow(V,[x,y,-0.4],[x,y,-0.4+0.25+0.8*S.B5],"var(--red)",1.5,x===1.2&&y===0.9?"B":"",{op:.75,hd:7});
+  [1.3,-1.3].forEach(y=>D3.line(V,[[-0.5,y,0],[0.5,y,0]],"var(--ink)",4));
+  const pts=[];for(let k=0;k<=40;k++){const y=-1.3+2.6*k/40;pts.push([bow*(1-(y/1.3)**2),y,0])}D3.line(V,pts,"var(--ink)",4);
+  if(S.i5!==0){const up=S.i5>0;D3.arrow(V,[-0.28,up?-0.55:0.55,0],[-0.28,up?0.55:-0.55,0],"var(--blue)",2.5,"i")}
+  if(Math.abs(F)>1e-9)D3.arrow(V,[bow,0,0],[bow+Math.sign(F)*(0.35+0.5*Math.abs(F)/10),0,0],"var(--magenta)",4,"F_B",{bias:.05});}});
+// §6  torque on a loop: B along +x, rotation axis z, loop normal at angle θ in the xy-plane
+make3D(6,{hide:["v6"],anim:true,note:"rh6",yaw:0.75,pitch:0.42,scale:82,build(V){const th=T6.th,s=T6.s;const n=[Math.cos(th),Math.sin(th),0],u=[-Math.sin(th),Math.cos(th),0],z=[0,0,1];const hb=0.85,hz=0.65;
+  for(const y of [-1.2,0,1.2])for(const zz of [-1,1])D3.arrow(V,[-2.2,y,zz],[2.2,y,zz],"var(--red)",1.2,y===1.2&&zz===1?"B":"",{op:.45,hd:7});
+  const c=(a,b)=>add3(mul3(u,a*hb),mul3(z,b*hz));const P=[c(1,-1),c(1,1),c(-1,1),c(-1,-1)];
+  D3.poly(V,P,"var(--green)",0.1);for(let k=0;k<4;k++)D3.line(V,[P[k],P[(k+1)%4]],"var(--ink)",4);
+  // current runs +z on the u side when s>0 (as in the 2D picture)
+  const order=s>0?[0,1,2,3]:[3,2,1,0];for(let k=0;k<4;k++){const a=P[order[k]],b=P[order[(k+1)%4]];const m=mul3(add3(a,b),0.5),d=mul3([b[0]-a[0],b[1]-a[1],b[2]-a[2]],0.18);D3.arrow(V,add3(m,mul3(d,-1)),add3(m,d),"var(--blue)",2.4,k===2?"i":"",{hd:8})}
+  const tm=S.N6*S.i6*S.A6*1e-4*S.B6,fl=0.3+0.35*Math.min(1,tm/0.1);
+  [[1,s],[-1,-s]].forEach(([a,dir])=>{const m=mul3(u,a*hb);D3.arrow(V,m,add3(m,[0,dir*fl,0]),"var(--magenta)",3.5,a>0?"F":"",{bias:.05})});
+  [[1,-1],[-1,1]].forEach(([b,dir])=>{const m=mul3(z,b*hz);D3.arrow(V,m,add3(m,[0,0,b*0.22*Math.cos(th)*s]),"var(--magenta)",2,"",{op:.45,hd:7})});
+  D3.arrow(V,[0,0,0],mul3(n,0.9*s),"var(--green)",3.5,"μ");const tz=-s*Math.sin(th);if(Math.abs(tz)>0.03)D3.arrow(V,[0,0,0],[0,0,tz*1.1],"var(--red)",3.5,"τ",{bias:.06});
+  D3.line(V,[[0,0,-1.25],[0,0,1.25]],"var(--muted)",1,{dash:"4 4"});}});
+// §7  field of a current: straight wire, arc, or ring with its axis
+make3D(7,{hide:["v7"],note:"rh7",yaw:0.55,pitch:0.4,scale:84,build(V){const mode=S.sh7;
+  if(mode==="wire"){const semi=S.semi7;D3.line(V,[[0,semi?-1.5:-1.5,0],[0,semi?0:1.5,0]],"var(--ink)",4.5);D3.arrow(V,[-0.18,-1.2,0],[-0.18,-0.7,0],"var(--blue)",2.5,"i");
+    for(const y of semi?[-1.0,-0.3]:[-1.0,0.2,1.0])for(const r of [0.45,0.9]){const pts=D3.ring([0,y,0],[0,0,1],[1,0,0],r,0,2*Math.PI,60);D3.line(V,pts,"var(--red)",1.5,{op:.7});
+      for(const a of [0.3,0.3+Math.PI/2,0.3+Math.PI,0.3+1.5*Math.PI]){const p=[r*Math.sin(a),y,r*Math.cos(a)],t=[Math.cos(a),0,-Math.sin(a)];D3.arrow(V,add3(p,mul3(t,-0.08)),add3(p,mul3(t,0.1)),"var(--red)",1.5,"",{hd:7})}}
+    const R=0.3+1.0*S.R7/20;D3.line(V,[[0,0,0],[R,0,0]],"var(--muted)",1.2,{dash:"3 3"});D3.dot(V,[R,0,0],6,"var(--magenta)",{label:"P"});D3.arrow(V,[R,0,0],[R,0,-(0.25+0.5*Math.min(1,0.05/(S.R7/100))/1)],"var(--red)",3.5,"B",{bias:.05})}
+  else if(mode==="arc"){const ph=deg(S.phi7),pts=D3.ring([0,0,0],[0,-1,0],[1,0,0],1,0,ph,80);
+    if(ph>0.01){D3.line(V,pts,"var(--ink)",4.5);const k=Math.floor(pts.length/2);D3.arrow(V,pts[k-3],pts[k+3],"var(--blue)",3,"i",{hd:9})}
+    D3.line(V,[[0,0,0],pts[0]],"var(--muted)",1.2,{dash:"3 3"});D3.line(V,[[0,0,0],pts[pts.length-1]],"var(--muted)",1.2,{dash:"3 3"});
+    if(ph>0.01)D3.arrow(V,[0,0,0],[0,0,0.2+1.0*S.phi7/360],"var(--red)",3.5,"B",{bias:.05});D3.dot(V,[0,0,0],4,"var(--ink)")}
+  else{const R=0.5,pts=D3.ring([0,0,0],[0,0,1],[1,0,0],R,0,2*Math.PI,80);D3.line(V,pts,"var(--ink)",4.5);D3.arrow(V,pts[37],pts[43],"var(--blue)",3,"i",{hd:9});
+    D3.line(V,[[0,-1.7,0],[0,1.7,0]],"var(--muted)",1.2,{dash:"4 4"});const zp=S.z7*R;const B=1/Math.pow(1+S.z7*S.z7,1.5);
+    D3.dot(V,[0,zp,0],6,"var(--magenta)",{label:"P"});D3.arrow(V,[0,zp,0],[0,zp+0.15+0.8*B,0],"var(--red)",3.5,"B",{bias:.05})}}});
+// §8  parallel currents: wires along x; the field line of wire a through wire b
+make3D(8,{hide:["v8"],note:"rh8",yaw:0.7,pitch:0.3,scale:80,build(V){const ia=S.ia8,ib=S.ib8,d=0.45+1.25*S.d8/20,ya=d/2,yb=-d/2;
+  [[ya,ia,"a"],[yb,ib,"b"]].forEach(([y,i,nm])=>{D3.line(V,[[-2,y,0],[2,y,0]],"var(--ink)",4.5);D3.text(V,[2.1,y,0],nm,"var(--ink)",{attrs:{"font-weight":700}});
+    if(i!==0)D3.arrow(V,[-1.6-0.3*Math.sign(i),y+0.12,0],[-1.6+0.3*Math.sign(i),y+0.12,0],"var(--blue)",2.5,"i_"+nm,{hd:8})});
+  if(ia!==0){const sg=Math.sign(ia),pts=D3.ring([0.6,ya,0],[0,1,0],[0,0,1],d,0,2*Math.PI,72);D3.line(V,pts,"var(--red)",1.6,{op:.75});
+    for(const a of [Math.PI/2,1.5*Math.PI,0]){const p=add3([0.6,ya,0],[0,d*Math.cos(a),d*Math.sin(a)]),t=mul3([0,-Math.sin(a),Math.cos(a)],sg);D3.arrow(V,add3(p,mul3(t,-0.09)),add3(p,mul3(t,0.11)),"var(--red)",1.6,"",{hd:7})}
+    D3.arrow(V,[0.6,yb,0],[0.6,yb,-sg*0.6],"var(--red)",3.5,"B_a",{bias:.05})}
+  const F=ia*ib;if(F!==0){const att=F>0,fl=0.25+0.35*Math.sqrt(Math.abs(F)/400);D3.arrow(V,[-0.7,yb,0],[-0.7,yb+(att?fl:-fl),0],"var(--magenta)",3.5,"",{bias:.05});D3.text(V,[-0.7,yb,0],"F_ba","var(--magenta)",{dx:8,dy:24,attrs:{"font-weight":700,"font-size":15}});D3.arrow(V,[-0.7,ya,0],[-0.7,ya+(att?-fl:fl),0],"var(--magenta)",3.5,"",{bias:.05});D3.text(V,[-0.7,ya,0],"F_ab","var(--magenta)",{dx:8,dy:-12,attrs:{"font-weight":700,"font-size":15}})}}});
+// §10  solenoid: coil along x, current circulating counterclockwise about +x, B inside along +x
+make3D(10,{hide:["v10"],note:"rh10",yaw:0.55,pitch:0.35,scale:82,build(V){const R=0.6,nT=Math.round(6+S.n10/5000*10),x0=-1.7,x1=1.7,adv=(x1-x0)/nT;
+  const pts=[];for(let k=0;k<=nT*48;k++){const t=k/48*2*Math.PI;pts.push([x0+adv*t/(2*Math.PI),R*Math.cos(t),R*Math.sin(t)])}D3.line(V,pts,"var(--ink)",2.4);
+  for(let j=1;j<nT;j+=2){const t=(j+0.25)*2*Math.PI,p=[x0+adv*t/(2*Math.PI),R*Math.cos(t),R*Math.sin(t)],tg=[adv/(2*Math.PI),-R*Math.sin(t),R*Math.cos(t)];const L=len3(tg);D3.arrow(V,add3(p,mul3(tg,-0.12/L)),add3(p,mul3(tg,0.14/L)),"var(--blue)",2.5,j===1?"i":"",{hd:8,bias:.05})}
+  const lw=1.5+2.5*Math.min(1,S.i10*S.n10/5000);for(const [y,z] of [[0,0],[0.25,0],[-0.25,0],[0,0.25],[0,-0.25]])D3.arrow(V,[-1.9,y,z],[1.95,y,z],"var(--red)",lw,y===0&&z===0?"B":"",{hd:9,op:y===0&&z===0?1:.6});
+  D3.text(V,[0,1.05,0],"B ≈ 0","var(--muted)",{attrs:{"text-anchor":"middle"}});}});
+
 /* text and loop */
 function applyText(){document.querySelectorAll("[data-i18n]").forEach(el=>{el.innerHTML=t(el.dataset.i18n)})}
 let last=performance.now();
 function frame(now){const dt=Math.min(0.05,(now-last)/1000);last=now;anims.forEach(f=>f(dt));
-  step2(dt);step3(dt);step4(dt);step6(dt);draw2();draw3();draw4();draw5(dt);draw6();requestAnimationFrame(frame)}
+  step2(dt);step3(dt);step4(dt);step6(dt);draw2();draw3();draw4();draw5(dt);draw6();tick3();requestAnimationFrame(frame)}
 applyText();u1();fire2();u3();u4();u5();u7();u8();u9();u10();requestAnimationFrame(frame);
 </script>
 <script>

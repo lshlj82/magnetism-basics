@@ -4,7 +4,7 @@ An interactive, browser-based demo of the basic concepts of magnetism. It covers
 
 Created by **Claude Opus 5.5**, based on the lecture notes by **Sang Hoon Lee (이상훈)**.
 
-> **한국어 요약:** 자기장이 움직이는 전하와 전류에 작용하는 힘, 그리고 전류가 만드는 자기장 등 자기의 기본 개념을 직접 조작해 볼 수 있는 인터랙티브 웹 데모입니다. 이상훈(Sang Hoon Lee)의 강의 노트를 바탕으로 Claude Opus 5.5가 만들었습니다. 한국어 페이지는 `magnetism-ko.html`입니다.
+> **한국어 요약:** 자기장이 움직이는 전하와 전류에 작용하는 힘, 그리고 전류가 만드는 자기장 등 자기의 기본 개념을 직접 조작해 볼 수 있는 인터랙티브 웹 데모입니다. 오른손 법칙이 필요한 일곱 개 절에는 끌어서 돌려 볼 수 있는 3D 보기가 있습니다. 이상훈(Sang Hoon Lee)의 강의 노트를 바탕으로 Claude Opus 5.5가 만들었습니다. 한국어 페이지는 `magnetism-ko.html`입니다.
 
 ## Files
 
@@ -47,6 +47,18 @@ The ten sections follow the order of the lecture notes. Every value is recompute
 8. **Parallel currents:** Two wires attract each other when their currents point the same way and repel when they point opposite ways, with F/L = μ₀i<sub>a</sub>i<sub>b</sub>/2πd.
 9. **Ampère's law:** You can drag a circular Ampère loop among three currents. The page computes ∮**B**·d**s** numerically and shows that it equals μ₀i<sub>enc</sub>, with each segment of the loop colored by the sign of **B**·d**s**. A graph shows the field inside and outside a thick wire.
 10. **Solenoid:** A cross-section of a solenoid with a rectangular Ampère loop drawn on it, showing that B = μ₀in.
+
+### 3D views for the right-hand rule
+
+Sections 1, 4, 5, 6, 7, 8 and 10 have a **View: 2D | 3D** switch at the top of their controls. The 3D view draws the same situation in perspective-free (orthographic) 3D, with the axes matching the 2D figure (x to the right, y up the page, z out of the page). Drag the figure to rotate it, or click it and use the arrow keys (Shift for bigger steps); Home or **Reset view** returns to the starting view. Each 3D view follows the section's controls and comes with a short right-hand-rule note.
+
+- **1:** **v**, **B**, the curl from **v** to **B**, the shaded parallelogram of area |**v** × **B**|, and **F**<sub>B</sub> = q**v** × **B** (for a negative charge, **v** × **B** is shown dashed next to the reversed force).
+- **4:** the helix around **B**, with the moving charge and its velocity and force (toward the axis).
+- **5:** the bowed wire with the current, the field out of the page and the force.
+- **6:** the rotating loop with the current around it, the forces on all four sides, **μ** and **τ** = **μ** × **B**.
+- **7:** circular field lines around a straight wire (or a semi-infinite one), the field at the center of an arc, and the field on the axis of a ring.
+- **8:** the field line of wire a passing through wire b, **B**<sub>a</sub> at b, and the pair of forces.
+- **10:** a helical coil with the current and the field inside.
 
 ## Notes on the model
 
