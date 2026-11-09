@@ -234,7 +234,7 @@ button.theme-btn svg{width:20px; height:20px; fill:none; stroke:currentColor; st
   <div class="sim">
     <div class="viz">
       <svg id="v4" viewBox="0 0 440 300" role="img" aria-label="Two particles circling in a magnetic field"></svg>
-      <div class="small" data-i18n="helixCap"></div>
+      <div class="small" id="helixCap4" data-i18n="helixCap"></div>
       <svg id="v4h" viewBox="0 0 440 150" role="img" aria-label="Helical path"></svg>
     </div>
     <div class="controls" id="c4"></div>
@@ -350,7 +350,9 @@ const I18N={
 en:{
  view:"View",v2d:"2D (page)",v3d:"3D",reset3d:"Reset view",
  hint3d:"Drag to rotate, or click the figure and use the arrow keys (Shift for bigger steps). Home or Reset view returns to the starting view.",
- rh1:"Right-hand rule: point your fingers along <b>v</b> and curl them toward <b>B</b> (gray arc); your thumb gives <b>v</b> × <b>B</b>. The force on a positive charge points along your thumb, and on a negative charge the opposite way. The shaded parallelogram has area |<b>v</b> × <b>B</b>| = <i>vB</i> sin <i>φ</i>.",
+ hand:"Show the right hand",
+ rh1:"Right-hand rule: point the fingers of your right hand along <b>v</b> and curl them toward <b>B</b> (gray arc), as the hand in the figure does; your thumb gives <b>v</b> × <b>B</b>. The force on a positive charge points along your thumb, and on a negative charge the opposite way. The shaded parallelogram has area |<b>v</b> × <b>B</b>| = <i>vB</i> sin <i>φ</i>.",
+ rh2:"Right-hand rule: fingers along <b>v</b> (to the right), curl them toward <b>B</b> (into the page); your thumb points up, so <b>F</b><sub>B</sub> = <i>q</i><b>v</b> × <b>B</b> is up for a positive charge, while <b>F</b><sub>E</sub> = <i>q</i><b>E</b> is down. For a negative charge both flip, so they still oppose each other. Turn the view to see that <b>E</b>, <b>B</b> and <b>v</b> are mutually perpendicular.",
  rh4:"The field points along the axis. The velocity component along <b>B</b> is left alone, while the perpendicular part turns in a circle, so the path is a helix. The force (magenta) always points toward the axis. Seen with <b>B</b> pointing toward you, a positive charge circles clockwise and a negative charge counterclockwise.",
  rh5:"Point your fingers along the current, <i>i</i><b>L</b>, and curl them toward <b>B</b>; your thumb gives the force <i>i</i><b>L</b> × <b>B</b>.",
  rh6:"Curl the fingers of your right hand along the current in the loop; your thumb gives the magnetic moment <b>μ</b> (green). The forces on the two long sides (magenta) form a couple, and the torque <b>τ</b> = <b>μ</b> × <b>B</b> (red) turns <b>μ</b> toward <b>B</b>. The faint forces on the short sides cancel.",
@@ -474,13 +476,15 @@ const anims=[];
 /* nav */
 (function(){const toc=$("#toc");L.nav.forEach((n,k)=>{const a=H("a",{href:"#s"+(k+1)},toc);a.innerHTML=`<span>${k+1}</span>${n}`})})();
 
-/* hero: a charge circling in a field into the page */
-(function(){const g=$("#hero");for(let x=30;x<1000;x+=56)for(let y=24;y<170;y+=40)xMark(g,x,y,5,"var(--red)",.35);
-  E("circle",{cx:500,cy:88,r:62,fill:"none",stroke:"var(--blue)","stroke-width":2,"stroke-dasharray":"4 6",opacity:.6},g);
-  const pg=E("g",{},g);txt(g,980,160,"B ⊗",{"text-anchor":"end","font-size":15,fill:"var(--red)"});
-  let th=0;anims.push(dt=>{if(reduceMotion&&th)return;th+=dt*1.1;pg.innerHTML="";const x=500+62*Math.sin(th),y=88+62*Math.cos(th);
-    E("circle",{cx:x,cy:y,r:9,fill:"var(--blue)"},pg);txt(pg,x,y+5,"+",{"text-anchor":"middle",fill:"var(--panel)","font-weight":700});
-    const vx=Math.cos(th),vy=-Math.sin(th);arrow(pg,x,y,x+vx*44,y+vy*44,"var(--blue)",2.5);arrow(pg,x,y,x+(500-x)*.55,y+(88-y)*.55,"var(--magenta)",2.5)})})();
+/* hero: a charge circling in a field, seen at a fixed 3D angle (B points away from the viewer, tilted) */
+(function(){const g=$("#hero");const pg=E("g",{},g);txt(g,980,160,"B",{"text-anchor":"end","font-size":15,fill:"var(--red)","font-weight":700});
+  const HV={yaw:0.06,pitch:-1.0,scale:56,h:170,cx:500,prims:[]};let th=0,drawn=false;
+  anims.push(dt=>{if(reduceMotion&&drawn)return;drawn=true;th+=dt*1.1;HV.prims=[];
+    [-1.3,-0.1,1.1].forEach((y,r)=>{for(let x=-8.9+r*0.35;x<=8.9;x+=1.05)D3.arrow(HV,[x,y,0.32],[x,y,-0.32],"var(--red)",1.3,"",{op:.35,hd:6})});
+    D3.line(HV,D3.ring([0,0,0],[1,0,0],[0,1,0],1.2,0,2*Math.PI,64),"var(--blue)",2,{dash:"3 4",op:.6});
+    const p=[1.2*Math.sin(th),-1.2*Math.cos(th),0],v=[Math.cos(th),Math.sin(th),0];
+    D3.arrow(HV,p,add3(p,mul3(v,0.8)),"var(--blue)",2.5,"",{hd:9,bias:.05});D3.arrow(HV,p,add3(p,mul3(p,-0.5)),"var(--magenta)",2.5,"",{hd:9,bias:.05});D3.dot(HV,p,9,"var(--blue)",{text:"+",bias:.1});
+    HV.prims.sort((a,b)=>a.d-b.d);pg.innerHTML="";HV.prims.forEach(q=>q.f(pg))})})();
 
 /* 1. F = q v x B */
 (function(){const c=$("#c1");seg(c,{id:"q1",key:"charge",options:[[1,"pos"],[-1,"neg"]],value:1,on:u1});
@@ -739,6 +743,7 @@ function make3D(sec,{hide,build,anim=false,yaw=0.62,pitch=0.38,scale=88,h=300,no
   const bar=H("div",{class:"v3bar"},box);H("span",{class:"small","data-i18n":"hint3d"},bar);
   const V={sec,svg,build,anim,yaw,pitch,yaw0:yaw,pitch0:pitch,scale,h,on:false,dirty:true,prims:[]};
   const rb=H("button",{type:"button",class:"btn","data-i18n":"reset3d"},bar);const reset=()=>{V.yaw=V.yaw0;V.pitch=V.pitch0;V.dirty=true};rb.addEventListener("click",reset);
+  if(sec===1)check(bar,{id:"hand1",key:"hand",value:true,on:()=>{V.dirty=true}});
   if(note)H("div",{class:"scrawl v3note","data-i18n":note},box);
   let drag=null;
   svg.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,id:e.pointerId};svg.setPointerCapture(e.pointerId);svg.focus({preventScroll:true})});
@@ -756,7 +761,7 @@ function make3D(sec,{hide,build,anim=false,yaw=0.62,pitch=0.38,scale=88,h=300,no
   c.addEventListener("input",()=>{V.dirty=true});c.addEventListener("click",()=>{V.dirty=true});
   V3s.push(V);return V}
 function proj(V,[x,y,z]){const cy=Math.cos(V.yaw),sy=Math.sin(V.yaw),cp=Math.cos(V.pitch),sp=Math.sin(V.pitch);
-  const x1=x*cy+z*sy,z1=-x*sy+z*cy;const y2=y*cp-z1*sp,z2=y*sp+z1*cp;return[220+V.scale*x1,V.h/2-V.scale*y2,z2]}
+  const x1=x*cy+z*sy,z1=-x*sy+z*cy;const y2=y*cp-z1*sp,z2=y*sp+z1*cp;return[(V.cx||220)+V.scale*x1,V.h/2-V.scale*y2,z2]}
 const add3=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],mul3=(a,s)=>[a[0]*s,a[1]*s,a[2]*s],cross3=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],len3=a=>Math.hypot(...a);
 // drawing primitives, sorted back to front before rendering
 const D3={
@@ -769,6 +774,10 @@ const D3={
       if(label){const dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy)||1;txt(g,B[0]+dx/L*14,B[1]+dy/L*14+5,label,{"text-anchor":"middle","font-weight":700,fill:col,"font-size":15,stroke:"var(--panel)","stroke-width":4,"paint-order":"stroke"})}}})},
   dot(V,p,r,col,o={}){const P=proj(V,p);V.prims.push({d:P[2]+(o.bias||0.02),f:g=>{E("circle",{cx:P[0],cy:P[1],r,fill:col,stroke:o.stroke||"var(--panel)","stroke-width":1.5},g);if(o.text)txt(g,P[0],P[1]+4,o.text,{"text-anchor":"middle","font-size":11,"font-weight":700,fill:"var(--panel)"});
     if(o.label)txt(g,P[0]+r+5,P[1]-r,o.label,{"font-weight":700,fill:col,"font-size":14,stroke:"var(--panel)","stroke-width":4,"paint-order":"stroke"})}})},
+  limb(V,pts,w,o={}){const P=pts.map(p=>proj(V,p));const dd=P.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+","+p[1].toFixed(1)).join("");
+    V.prims.push({d:P.reduce((s,p)=>s+p[2],0)/P.length+(o.bias||0),f:g=>{const a={fill:"none","stroke-linecap":"round","stroke-linejoin":"round"};
+      E("path",Object.assign({d:dd,stroke:"#7a4a2c","stroke-width":w+3},a),g);E("path",Object.assign({d:dd,stroke:"#f1c6a0","stroke-width":w},a),g)}})},
+  solid(V,pts,o={}){const P=pts.map(p=>proj(V,p));V.prims.push({d:P.reduce((s,p)=>s+p[2],0)/P.length+(o.bias||0),f:g=>E("polygon",{points:P.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" "),fill:"#f1c6a0",stroke:"#7a4a2c","stroke-width":1.5,"stroke-linejoin":"round"},g)})},
   poly(V,pts,fill,op=0.18){const P=pts.map(p=>proj(V,p));const d=P.reduce((s,p)=>s+p[2],0)/P.length;V.prims.push({d:d-0.3,f:g=>E("polygon",{points:P.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" "),fill,opacity:op},g)})},
   text(V,p,s,col,o={}){const P=proj(V,p);V.prims.push({d:P[2]+1,f:g=>txt(g,P[0]+(o.dx||0),P[1]+(o.dy||0),s,Object.assign({"font-size":13,fill:col,stroke:"var(--panel)","stroke-width":4,"paint-order":"stroke"},o.attrs||{}))})},
   ring(c,u,v,R,a0=0,a1=2*Math.PI,n=72){const pts=[];for(let k=0;k<=n;k++){const a=a0+(a1-a0)*k/n;pts.push(add3(c,add3(mul3(u,R*Math.cos(a)),mul3(v,R*Math.sin(a)))))}return pts}};
@@ -778,16 +787,35 @@ function render3(V){if(!V.on)return;V.prims=[];V.build(V);V.prims.sort((a,b)=>a.
 function tick3(){V3s.forEach(V=>{if(V.on&&(V.dirty||V.anim))render3(V)})}
 
 // §1  F = q v × B : v along x, B in the xy-plane at angle φ, v × B along z
-make3D(1,{hide:["v1"],note:"rh1",scale:120,build(V){const ph=deg(S.phi1),q=S.q1,s=Math.sin(ph);
+make3D(1,{hide:["v1","cross1"],note:"rh1",scale:120,build(V){const ph=deg(S.phi1),q=S.q1,s=Math.sin(ph);
   const v=[0.45+0.95*S.v1s/10,0,0],B=mul3([Math.cos(ph),Math.sin(ph),0],0.45+0.75*S.B1/2);const vb=cross3(v,B);
   D3.poly(V,[[0,0,0],v,add3(v,B),B],"var(--magenta)",0.14);
   const n=len3(vb);const vbu=n>1e-6?mul3(vb,1/n):[0,0,0];const Lf=0.25+1.1*Math.abs(s);
   D3.arrow(V,[0,0,0],v,"var(--blue)",3.5,"v");D3.arrow(V,[0,0,0],B,"var(--red)",3.5,"B");
   const arc=D3.ring([0,0,0],[1,0,0],[0,1,0],0.32,0,ph>Math.PI?ph-2*Math.PI:ph,40);if(Math.abs(s)>1e-3||Math.abs(Math.cos(ph)+1)<1e-3){D3.line(V,arc,"var(--muted)",2);D3.arrow(V,arc[arc.length-3],arc[arc.length-1],"var(--muted)",2,"",{hd:8})}
   if(n>1e-6){if(q<0)D3.arrow(V,[0,0,0],mul3(vbu,Lf*0.9),"var(--muted)",2,"v×B",{dash:"5 4",op:.8});D3.arrow(V,[0,0,0],mul3(vbu,Lf*q),"var(--magenta)",4,"F_B",{bias:.05})}
-  D3.dot(V,[0,0,0],10,q>0?"var(--red)":"var(--blue)",{text:q>0?"+":"−"});}});
+  D3.dot(V,[0,0,0],10,q>0?"var(--red)":"var(--blue)",{text:q>0?"+":"−"});
+  if(S.hand1&&Math.abs(s)>0.02)rightHand(V,[-0.9,-0.28,-0.35*Math.sign(s)],[1,0,0],[0,Math.sign(s),0],s>0?ph:2*Math.PI-ph);}});
+// a right hand: fingers start along a and curl toward b through angle ang; the thumb points along a × b
+function rightHand(V,O,a,b,ang,k=0.8){const c=cross3(a,b),at=(da,db,dc)=>add3(O,add3(mul3(a,da*k),add3(mul3(b,db*k),mul3(c,dc*k))));const th=Math.max(0.9,Math.min(2.5,ang));
+  D3.solid(V,[at(-0.8,0,-0.21),at(-0.8,0,0.21),at(-0.05,0,0.3),at(-0.02,0,0.1),at(-0.02,0,-0.12),at(-0.05,0,-0.28)]);
+  [[0.21,0.58],[0.07,0.64],[-0.07,0.6],[-0.205,0.48]].forEach(([dc,L])=>{const r=(L-0.12)/th,pts=[at(-0.06,0,dc)];for(let t=0;t<=th+1e-9;t+=th/8)pts.push(at(0.12+r*Math.sin(t),r*(1-Math.cos(t)),dc));D3.limb(V,pts,11)});
+  D3.limb(V,[at(-0.66,0.02,0.18),at(-0.45,0.04,0.42),at(-0.38,0.05,0.78)],12,{bias:.02});
+  D3.arrow(V,at(-0.38,0.05,0.86),at(-0.38,0.05,1.22),"var(--muted)",1.8,"v×B",{dash:"4 3",hd:7,bias:.03})}
+// §2  crossed fields: E down (−y), B into the page (−z), particle enters along +x
+make3D(2,{hide:["v2"],anim:true,note:"rh2",yaw:0.55,pitch:0.3,scale:80,h:300,build(V){const X=x=>(x-2)*0.8,Y=y=>y*0.85,W=0.75,P=(x,y,z=0)=>[X(x),Y(y),z];
+  [1,-1].forEach(sy=>{const y=sy*1.02;D3.poly(V,[P(0,y,-W),P(4,y,-W),P(4,y,W),P(0,y,W)],"var(--ink)",0.13);D3.line(V,[P(0,y,-W),P(4,y,-W),P(4,y,W),P(0,y,W),P(0,y,-W)],"var(--ink)",2)});
+  const eo=Math.min(1,S.E2/6+.15);if(S.E2>0)for(const x of [0.6,2,3.4])for(const z of [-0.45,0.45])D3.arrow(V,P(x,0.95,z),P(x,-0.95,z),"var(--blue)",0.8+1.4*eo,x===3.4&&z===0.45?"E":"",{op:.55,hd:8});
+  const bo=Math.min(1,S.B2/3+.2);for(const x of [1.3,2.7])for(const y of [0.55,-0.55])D3.arrow(V,P(x,y,W),P(x,y,-W),"var(--red)",0.8+1.4*bo,x===2.7&&y===0.55?"B":"",{op:.55,hd:8});
+  P2.old.forEach((tr,k)=>{if(tr.length>1)D3.line(V,tr.filter((_,i)=>i%3===0||i===tr.length-1).map(q=>P(q[0],q[1])),"var(--green)",2,{op:.35-.1*k})});
+  if(P2.trail.length>1)D3.line(V,P2.trail.filter((_,i)=>i%2===0||i===P2.trail.length-1).map(q=>P(q[0],q[1])),"var(--green)",2.5);
+  const c=P(P2.x,P2.y);D3.arrow(V,c,add3(c,[P2.vx*0.18,P2.vy*0.18,0]),"var(--green)",2.5,"v",{hd:8});
+  if(P2.x>=0&&P2.x<=4&&P2.alive){const fe=-S.q2*S.E2,fb=S.q2*P2.vx*S.B2;
+    if(Math.abs(fe)>1e-6)D3.arrow(V,add3(c,[-0.1,0,0]),add3(c,[-0.1,fe*0.09,0]),"var(--blue)",3,"F_E",{bias:.05,hd:9});
+    if(Math.abs(fb)>1e-6)D3.arrow(V,add3(c,[0.1,0,0]),add3(c,[0.1,fb*0.09,0]),"var(--red)",3,"F_B",{bias:.05,hd:9})}
+  D3.dot(V,c,8,"var(--green)",{text:S.q2>0?"+":"−",bias:.1});}});
 // §4  helix: B along +x; a charge circles about the axis while drifting along it
-make3D(4,{hide:["v4","v4h"],anim:true,note:"rh4",yaw:0.5,pitch:0.32,scale:80,build(V){const ph=deg(S.ph4),q=PM[S.pt4][1],sg=q>0?1:-1;
+make3D(4,{hide:["v4","helixCap4","v4h"],anim:true,note:"rh4",yaw:0.5,pitch:0.32,scale:80,build(V){const ph=deg(S.ph4),q=PM[S.pt4][1],sg=q>0?1:-1;
   const R=0.62*Math.sin(ph)+0.02,adv=Math.max(0.05,1.25*Math.cos(ph)),x0=-1.9,th1=(3.8/adv)*2*Math.PI;
   for(const [y,z] of [[1.1,-1.1],[-1.1,-1.1],[1.1,1.1],[-1.1,1.1]])D3.arrow(V,[-2.1,y,z],[2.1,y,z],"var(--red)",1.4,"",{op:.6,hd:8});
   D3.text(V,[2.15,1.1,1.1],"B","var(--red)",{attrs:{"font-weight":700}});D3.line(V,[[-2.1,0,-sg*R],[2.1,0,-sg*R]],"var(--muted)",1,{dash:"3 4"});
