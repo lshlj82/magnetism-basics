@@ -54,7 +54,7 @@ Sections 1, 2, 4, 5, 6, 7, 8 and 10 have a **View: 2D | 3D** switch at the top o
 
 - **1:** a right hand as a guide (fingers along **v** curling toward **B**, thumb along **v** × **B**; it can be hidden), **v**, **B**, the curl from **v** to **B**, the shaded parallelogram of area |**v** × **B**|, and **F**<sub>B</sub> = q**v** × **B** (for a negative charge, **v** × **B** is shown dashed next to the reversed force).
 - **2:** the plates, **E** pointing down, **B** pointing into the page, and the particle's path with **v**, **F**<sub>E</sub> and **F**<sub>B</sub>, seen slightly from the side.
-- **4:** the helix around **B**, with the moving charge and its velocity and force (toward the axis).
+- **4:** the helices of particles 1 and 2 around **B** (both at angle φ), drawn to scale for the chosen particle, so their radii *r* and pitches *p* (labeled with their real values) grow and shrink with *B*, the speeds and φ, while both complete each turn at the same moment. Each charge carries its velocity and the force toward the axis.
 - **5:** the bowed wire with the current, the field out of the page and the force.
 - **6:** the rotating loop with the current around it, the forces on all four sides, **μ** and **τ** = **μ** × **B**.
 - **7:** circular field lines around a straight wire (or a semi-infinite one), the field at the center of an arc, and the field on the axis of a ring.
