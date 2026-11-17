@@ -768,7 +768,7 @@ const add3=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],mul3=(a,s)=>[a[0]*s,a[1]*s,a[2
 // drawing primitives, sorted back to front before rendering
 const D3={
   line(V,pts,col,w=2,o={}){const P=pts.map(p=>proj(V,p));for(let k=0;k<P.length-1;k++){const a=P[k],b=P[k+1];
-    V.prims.push({d:(a[2]+b[2])/2+(o.bias||0),f:g=>E("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:col,"stroke-width":w,"stroke-linecap":"round","stroke-dasharray":o.dash||"",opacity:o.op??1},g)})}},
+    V.prims.push({d:(a[2]+b[2])/2+(o.bias||0),f:g=>E("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:col,"stroke-width":w,"stroke-linecap":o.cap||"round","stroke-dasharray":o.dash||"",opacity:o.op??1},g)})}},
   arrow(V,a,b,col,w=3,label,o={}){const A=proj(V,a),B=proj(V,b);const hd=o.hd||11;
     V.prims.push({d:(A[2]+B[2])/2+(o.bias||0),f:g=>{if(o.dash){E("line",{x1:A[0],y1:A[1],x2:B[0],y2:B[1],stroke:col,"stroke-width":w,"stroke-dasharray":o.dash,opacity:o.op??1},g);}
       else arrow(g,A[0],A[1],B[0],B[1],col,w,hd);
@@ -859,7 +859,7 @@ make3D(7,{hide:["v7"],note:"rh7",yaw:0.55,pitch:0.4,scale:84,build(V){const mode
     if(ph>0.01){D3.line(V,pts,"var(--ink)",4.5);const k=Math.floor(pts.length/2);D3.arrow(V,pts[k-3],pts[k+3],"var(--blue)",3,"i",{hd:9})}
     D3.line(V,[[0,0,0],pts[0]],"var(--muted)",1.2,{dash:"3 3"});D3.line(V,[[0,0,0],pts[pts.length-1]],"var(--muted)",1.2,{dash:"3 3"});
     if(ph>0.01)D3.arrow(V,[0,0,0],[0,0,0.2+1.0*S.phi7/360],"var(--red)",3.5,"B",{bias:.05});D3.dot(V,[0,0,0],4,"var(--ink)")}
-  else{const R=0.5,pts=D3.ring([0,0,0],[0,0,1],[1,0,0],R,0,2*Math.PI,80);D3.line(V,pts,"var(--ink)",4.5);D3.arrow(V,pts[37],pts[43],"var(--blue)",3,"i",{hd:9});
+  else{const R=0.5,n=80,pts=D3.ring([0,0,0],[0,0,1],[1,0,0],R,0,2*Math.PI,n);const dz=pts.map(p=>proj(V,p)[2]),dc=proj(V,[0,0,0])[2];for(let k=0;k<n;k++){const back=(dz[k]+dz[k+1])/2<dc;D3.line(V,[pts[k],pts[k+1]],back?"var(--muted)":"var(--ink)",back?3.5:4.5,{op:back?0.55:1,cap:back?"butt":"round"})}let kf=0;for(let k=1;k<n;k++)if(dz[k]>dz[kf])kf=k;const af=2*Math.PI*kf/n,pf=mul3(pts[kf],1.25),tf=[Math.cos(af),0,-Math.sin(af)];D3.arrow(V,add3(pf,mul3(tf,-0.15)),add3(pf,mul3(tf,0.15)),"var(--blue)",3,"i",{hd:9,bias:.1});
     D3.line(V,[[0,-1.7,0],[0,1.7,0]],"var(--muted)",1.2,{dash:"4 4"});const zp=S.z7*R;const B=1/Math.pow(1+S.z7*S.z7,1.5);
     D3.dot(V,[0,zp,0],6,"var(--magenta)",{label:"P"});D3.arrow(V,[0,zp,0],[0,zp+0.15+0.8*B,0],"var(--red)",3.5,"B",{bias:.05})}}});
 // §8  parallel currents: wires along x; the field line of wire a through wire b
